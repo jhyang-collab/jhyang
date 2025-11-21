@@ -143,6 +143,39 @@ select {
   color: #374151;
 }
 
+.service-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.service-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 16px;
+  gap: 24px;
+}
+
+.service-item span {
+  font-weight: 600;
+}
+
+.service-item small {
+  display: block;
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.service-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
 .checkbox-group {
   display: flex;
   flex-wrap: wrap;

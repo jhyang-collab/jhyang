@@ -13,14 +13,14 @@
     <fieldset>
       <legend>기본 정보</legend>
       <label for="companyName">업체명</label>
-      <input id="companyName" type="text" placeholder="예: ㈜한빛테크" required>
+      <input id="companyName" name="companyName" type="text" placeholder="예: ㈜한빛테크" autocomplete="organization" required>
     </fieldset>
 
     <fieldset>
       <legend>금액 정보</legend>
       <div class="two-column">
         <div>
-          <label for="contractTotal">월 계약총액</label>
+          <label for="contractTotal">년 계약총액</label>
           <input id="contractTotal" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
           <div class="vat-option">
             <label><input type="radio" name="totalVat" value="excluded" checked> VAT 별도</label>
@@ -28,7 +28,11 @@
           </div>
         </div>
         <div>
-          <label for="depositAmount">예상 계약금 (30%)</label>
+          <label for="usageMonths">이용 개월 수</label>
+          <input id="usageMonths" type="number" min="1" step="1" value="12">
+        </div>
+        <div>
+          <label for="depositAmount">계약금 (세팅비 + 부가서비스)</label>
           <input id="depositAmount" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
           <div class="vat-option">
             <label><input type="radio" name="depositVat" value="excluded" checked> VAT 별도</label>
@@ -37,8 +41,9 @@
         </div>
       </div>
       <div class="total-highlight" aria-live="polite">
-        월 이용료 합계: <strong id="monthlyTotalText">₩0 / 월</strong>
+        년 계약총액: <strong id="contractTotalText">₩0</strong>
       </div>
+      <p class="note vat-note">모든 비용은 VAT 미포함 기준입니다.</p>
     </fieldset>
 
     <fieldset>
@@ -104,11 +109,36 @@
 
     <fieldset>
       <legend>부가서비스</legend>
-      <p class="note">필요 시 체크해 주세요. (추가 항목은 추후 확정 예정)</p>
-      <div class="checkbox-group">
-        <label><input type="checkbox" disabled> 항목 A (추가 예정)</label>
-        <label><input type="checkbox" disabled> 항목 B (추가 예정)</label>
-        <label><input type="checkbox" disabled> 항목 C (추가 예정)</label>
+      <p class="note">필요한 항목을 선택해 주세요. (VAT 미포함)</p>
+      <div class="service-list">
+        <label class="service-item">
+          <div>
+            <span>PG 전자결제</span>
+            <small>1회성 비용 ₩100,000</small>
+          </div>
+          <input type="checkbox" id="servicePg" data-service-price="100000">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>수료증 제작</span>
+            <small>1회성 비용 ₩100,000</small>
+          </div>
+          <input type="checkbox" id="serviceCertificate" data-service-price="100000">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>SSO 연동</span>
+            <small>1회성 비용 ₩500,000</small>
+          </div>
+          <input type="checkbox" id="serviceSso" data-service-price="500000">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>API 연동</span>
+            <small>1회성 비용 ₩500,000</small>
+          </div>
+          <input type="checkbox" id="serviceApi" data-service-price="500000">
+        </label>
       </div>
     </fieldset>
 
@@ -159,14 +189,31 @@
     const depositInput = document.getElementById("depositAmount");
     const planPriceDisplay = document.getElementById("planPriceDisplay");
     const securePriceDisplay = document.getElementById("securePriceDisplay");
-    const monthlyTotalText = document.getElementById("monthlyTotalText");
+    const contractTotalText = document.getElementById("contractTotalText");
     const securePlayerCheckbox = document.getElementById("securePlayer");
+    const usageMonthsInput = document.getElementById("usageMonths");
+    const serviceCheckboxes = Array.from(document.querySelectorAll("[data-service-price]"));
 
     const SECURE_VIDEO_PRICE = 390000;
-    const DEPOSIT_RATIO = 0.3;
+    const SETUP_FEE = 500000;
 
     function formatCurrency(amount) {
       return `₩${formatter.format(amount)}`;
+    }
+
+    function getUsageMonths() {
+      if (!usageMonthsInput) return 0;
+      const value = parseInt(usageMonthsInput.value, 10);
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    }
+
+    function getSelectedServiceTotal() {
+      if (!serviceCheckboxes.length) return 0;
+      return serviceCheckboxes.reduce((sum, checkbox) => {
+        if (!checkbox.checked) return sum;
+        const price = Number(checkbox.dataset.servicePrice || 0);
+        return sum + (Number.isFinite(price) ? price : 0);
+      }, 0);
     }
 
     function renderPlan(planKey) {
@@ -190,6 +237,7 @@
       const plan = planData[planKey];
       if (!plan) return;
 
+      const serviceTotal = getSelectedServiceTotal();
       let monthlyTotal = plan.price;
 
       if (planPriceDisplay) {
@@ -203,18 +251,23 @@
           : "₩0 / 월";
       }
 
-      monthlyTotal += securityFee;
+      monthlyTotal += securityFee + serviceTotal;
+
+      const usageMonths = getUsageMonths();
+      const contractTotal = usageMonths > 0 ? monthlyTotal * usageMonths : 0;
 
       if (contractTotalInput) {
-        contractTotalInput.value = monthlyTotal;
+        contractTotalInput.value = contractTotal || "";
       }
 
-      if (monthlyTotalText) {
-        monthlyTotalText.textContent = `${formatCurrency(monthlyTotal)} / 월`;
+      if (contractTotalText) {
+        contractTotalText.textContent = contractTotal
+          ? `${formatCurrency(contractTotal)} (총 ${usageMonths}개월)`
+          : "₩0";
       }
 
       if (depositInput) {
-        depositInput.value = Math.round(monthlyTotal * DEPOSIT_RATIO);
+        depositInput.value = SETUP_FEE + serviceTotal;
       }
     }
 
@@ -225,6 +278,14 @@
     if (securePlayerCheckbox) {
       securePlayerCheckbox.addEventListener("change", () => calculateTotals());
     }
+
+    if (usageMonthsInput) {
+      usageMonthsInput.addEventListener("input", () => calculateTotals());
+    }
+
+    serviceCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", () => calculateTotals());
+    });
 
     renderPlan(cloudPlanSelect.value);
   </script>
