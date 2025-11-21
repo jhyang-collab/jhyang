@@ -20,28 +20,25 @@
       <legend>금액 정보</legend>
       <div class="two-column">
         <div>
-          <label for="contractTotal">년 계약총액</label>
-          <input id="contractTotal" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
-          <div class="vat-option">
-            <label><input type="radio" name="totalVat" value="excluded" checked> VAT 별도</label>
-            <label><input type="radio" name="totalVat" value="included"> VAT 포함</label>
-          </div>
+          <label for="monthlyFee">월 이용료 (상품 기준)</label>
+          <input id="monthlyFee" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
         </div>
         <div>
           <label for="usageMonths">이용 개월 수</label>
           <input id="usageMonths" type="number" min="1" step="1" value="12">
         </div>
         <div>
+          <label for="contractTotal">년 계약총액</label>
+          <input id="contractTotal" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
+        </div>
+        <div>
           <label for="depositAmount">계약금 (세팅비 + 부가서비스)</label>
           <input id="depositAmount" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
-          <div class="vat-option">
-            <label><input type="radio" name="depositVat" value="excluded" checked> VAT 별도</label>
-            <label><input type="radio" name="depositVat" value="included"> VAT 포함</label>
-          </div>
         </div>
       </div>
       <div class="total-highlight" aria-live="polite">
-        년 계약총액: <strong id="contractTotalText">₩0</strong>
+        <span>월 이용료: <strong id="monthlyFeeText">₩0 / 월</strong></span>
+        <span>년 계약총액: <strong id="contractTotalText">₩0</strong></span>
       </div>
       <p class="note vat-note">모든 비용은 VAT 미포함 기준입니다.</p>
     </fieldset>
@@ -163,6 +160,10 @@
         <strong id="previewPlan">-</strong>
       </div>
       <div class="quote-row">
+        <span>월 이용료</span>
+        <strong id="previewMonthly">-</strong>
+      </div>
+      <div class="quote-row">
         <span>이용 기간</span>
         <strong id="previewMonths">-</strong>
       </div>
@@ -192,7 +193,7 @@
         storage: "100GB",
         bandwidth: "무제한",
         notes: [
-          "동영상 월 전송량 · 웹 트래픽 무제한",
+          "동영상 월 전송량·웹 트래픽 무제한",
           "누적 회원수 2,000명",
           "개인정보보호 · 실시간 라이브 강의 제공",
           "미리캔버스 디자인 플랫폼 포함"
@@ -219,13 +220,13 @@
         subtitle: "범용 클라우드 LMS",
         price: 700000,
         priceSuffix: "월",
-        storage: "200GB",
+        storage: "150GB",
         bandwidth: "무제한",
         notes: [
-          "동영상 · 웹 트래픽 무제한 (고급 SLA)",
-          "누적 회원수 5,000명",
-          "전용 기술 지원 및 보안 모니터링 제공",
-          "라이브 강의 · 미리캔버스 확장 모듈 포함"
+          "동영상·웹 트래픽 무제한 (고급 SLA)",
+          "누적 회원수 3,000명",
+          "개인정보보호 · 정기 구독 및 라이브 강의 포함",
+          "전용 기술지원 · 미리캔버스 제공"
         ]
       },
       memberStandard: {
@@ -234,11 +235,11 @@
         subtitle: "범용 클라우드 LMS",
         price: 700000,
         priceSuffix: "월",
-        storage: "120GB",
-        bandwidth: "700GB/월",
+        storage: "100GB",
+        bandwidth: "1,000GB/월",
         notes: [
           "누적 회원수 무제한 (고급 분석 포함)",
-          "동영상 월 전송량 700GB",
+          "동영상 월 전송량 1,000GB",
           "API 확장 · 개인정보보호 고급옵션 제공",
           "실시간 라이브 · 전담 고객 성공 매니저 배정"
         ]
@@ -252,10 +253,12 @@
     const planSummary = document.getElementById("planSummary");
     const storageInput = document.getElementById("storageSize");
     const bandwidthInput = document.getElementById("bandwidth");
+    const monthlyFeeInput = document.getElementById("monthlyFee");
     const contractTotalInput = document.getElementById("contractTotal");
     const depositInput = document.getElementById("depositAmount");
     const planPriceDisplay = document.getElementById("planPriceDisplay");
     const securePriceDisplay = document.getElementById("securePriceDisplay");
+    const monthlyFeeText = document.getElementById("monthlyFeeText");
     const contractTotalText = document.getElementById("contractTotalText");
     const securePlayerCheckbox = document.getElementById("securePlayer");
     const usageMonthsInput = document.getElementById("usageMonths");
@@ -266,6 +269,7 @@
     const quotePreview = document.getElementById("quotePreview");
     const previewCompany = document.getElementById("previewCompany");
     const previewPlan = document.getElementById("previewPlan");
+    const previewMonthly = document.getElementById("previewMonthly");
     const previewMonths = document.getElementById("previewMonths");
     const previewServices = document.getElementById("previewServices");
     const previewTotal = document.getElementById("previewTotal");
@@ -277,6 +281,7 @@
     let lastCalculation = {
       planKey: cloudPlanSelect.value,
       contractTotal: 0,
+      monthlyFee: 0,
       depositTotal: 0,
       usageMonths: Number(usageMonthsInput?.value) || 0,
       serviceNames: [],
@@ -350,6 +355,14 @@
         : 0;
       const depositTotal = SETUP_FEE + serviceTotal;
 
+      if (monthlyFeeInput) {
+        monthlyFeeInput.value = plan.price || "";
+      }
+
+      if (monthlyFeeText) {
+        monthlyFeeText.textContent = `${formatCurrency(plan.price)} / 월`;
+      }
+
       if (contractTotalInput) {
         contractTotalInput.value = contractTotal || "";
       }
@@ -367,6 +380,7 @@
       lastCalculation = {
         planKey,
         contractTotal,
+        monthlyFee: plan.price,
         depositTotal,
         usageMonths,
         serviceNames: serviceDetails.map((item) => item.title),
@@ -410,6 +424,9 @@
 
       previewCompany.textContent = companyName;
       previewPlan.textContent = plan ? plan.name : "-";
+      previewMonthly.textContent = lastCalculation.monthlyFee
+        ? `${formatCurrency(lastCalculation.monthlyFee)} / 월`
+        : "-";
       previewMonths.textContent = lastCalculation.usageMonths
         ? `${lastCalculation.usageMonths}개월`
         : "-";
@@ -460,6 +477,7 @@
       const rows = [
         ["업체명", previewCompany.textContent],
         ["상품 구분", previewPlan.textContent],
+        ["월 이용료", previewMonthly.textContent],
         ["이용 기간", previewMonths.textContent],
         ["부가서비스", previewServices.textContent],
         ["년 계약총액", previewTotal.textContent],
