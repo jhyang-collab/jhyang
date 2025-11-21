@@ -120,6 +120,12 @@ select {
   color: #111827;
 }
 
+.vat-note {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
 .product-info small {
   display: block;
   margin-top: 2px;
@@ -176,6 +182,63 @@ select {
   height: 18px;
 }
 
+.note {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-top: 6px;
+}
+.submit-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.submit-row button {
+  min-width: 140px;
+}
+
+.quote-preview {
+  max-width: 960px;
+  margin: 24px auto 0;
+}
+
+.quote-card {
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.quote-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf0f4;
+  gap: 16px;
+}
+
+.quote-row:last-child {
+  border-bottom: none;
+}
+
+.quote-row span {
+  font-weight: 600;
+  color: #374151;
+}
+
+.quote-row.total {
+  font-size: 1.1rem;
+}
+
+.quote-row strong {
+  text-align: right;
+}
+
 .checkbox-group {
   display: flex;
   flex-wrap: wrap;
@@ -188,12 +251,6 @@ select {
   align-items: center;
   gap: 8px;
   margin-bottom: 0;
-}
-
-.note {
-  font-size: 0.9rem;
-  color: #6b7280;
-  margin-top: 6px;
 }
 
 .plan-grid {
