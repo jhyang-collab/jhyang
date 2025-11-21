@@ -20,21 +20,24 @@
       <legend>금액 정보</legend>
       <div class="two-column">
         <div>
-          <label for="contractTotal">계약총액</label>
-          <input id="contractTotal" type="number" min="0" step="10000" placeholder="숫자만 입력">
+          <label for="contractTotal">월 계약총액</label>
+          <input id="contractTotal" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
           <div class="vat-option">
             <label><input type="radio" name="totalVat" value="excluded" checked> VAT 별도</label>
             <label><input type="radio" name="totalVat" value="included"> VAT 포함</label>
           </div>
         </div>
         <div>
-          <label for="depositAmount">계약금</label>
-          <input id="depositAmount" type="number" min="0" step="10000" placeholder="숫자만 입력">
+          <label for="depositAmount">예상 계약금 (30%)</label>
+          <input id="depositAmount" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
           <div class="vat-option">
             <label><input type="radio" name="depositVat" value="excluded" checked> VAT 별도</label>
             <label><input type="radio" name="depositVat" value="included"> VAT 포함</label>
           </div>
         </div>
+      </div>
+      <div class="total-highlight" aria-live="polite">
+        월 이용료 합계: <strong id="monthlyTotalText">₩0 / 월</strong>
       </div>
     </fieldset>
 
@@ -55,24 +58,34 @@
       <legend>기본상품 구성</legend>
       <div class="product-list">
         <div class="product-item">
-          <span>LMS</span>
-          <input type="number" min="0" step="1" value="1" aria-label="LMS 수량">
+          <div class="product-info">
+            <span>범용 클라우드 상품</span>
+            <small>선택한 상품 기준 월 이용료</small>
+          </div>
+          <strong id="planPriceDisplay" class="price-tag">₩0 / 월</strong>
         </div>
         <div class="product-item">
-          <span>동영상 플레이어</span>
-          <div>
-            <select aria-label="동영상 플레이어 보안 옵션">
-              <option value="secure">보안 적용 (₩390,000)</option>
-              <option value="standard">보안 미적용 (₩390,000)</option>
-            </select>
+          <div class="product-info">
+            <span>동영상 플레이어</span>
+            <small>보안 적용 시 추가 과금</small>
+          </div>
+          <div class="product-addon">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="securePlayer">
+              보안 적용 (+₩390,000/월)
+            </label>
+            <strong id="securePriceDisplay" class="price-tag">₩0 / 월</strong>
           </div>
         </div>
         <div class="product-item">
-          <span>세팅비</span>
-          <strong>₩500,000</strong>
+          <div class="product-info">
+            <span>세팅비</span>
+            <small>초기 1회 청구</small>
+          </div>
+          <strong class="price-tag">₩500,000</strong>
         </div>
       </div>
-      <p class="note">※ 기본상품 항목은 필수 포함 항목입니다.</p>
+      <p class="note">※ 기본상품 항목은 필수 포함 항목입니다. 월 이용료는 선택 옵션에 따라 자동 계산됩니다.</p>
     </fieldset>
 
     <fieldset>
@@ -142,11 +155,24 @@
     const planSummary = document.getElementById("planSummary");
     const storageInput = document.getElementById("storageSize");
     const bandwidthInput = document.getElementById("bandwidth");
+    const contractTotalInput = document.getElementById("contractTotal");
+    const depositInput = document.getElementById("depositAmount");
+    const planPriceDisplay = document.getElementById("planPriceDisplay");
+    const securePriceDisplay = document.getElementById("securePriceDisplay");
+    const monthlyTotalText = document.getElementById("monthlyTotalText");
+    const securePlayerCheckbox = document.getElementById("securePlayer");
+
+    const SECURE_VIDEO_PRICE = 390000;
+    const DEPOSIT_RATIO = 0.3;
+
+    function formatCurrency(amount) {
+      return `₩${formatter.format(amount)}`;
+    }
 
     function renderPlan(planKey) {
       const plan = planData[planKey];
       if (!plan) return;
-      const priceText = `₩${formatter.format(plan.price)} / ${plan.priceSuffix}`;
+      const priceText = `${formatCurrency(plan.price)} / ${plan.priceSuffix}`;
       planSummary.innerHTML = `
         <p class="plan-eyebrow">${plan.subtitle}</p>
         <h3>${plan.name}</h3>
@@ -157,11 +183,48 @@
       `;
       if (storageInput) storageInput.value = plan.storage;
       if (bandwidthInput) bandwidthInput.value = plan.bandwidth;
+      calculateTotals(planKey);
+    }
+
+    function calculateTotals(planKey = cloudPlanSelect.value) {
+      const plan = planData[planKey];
+      if (!plan) return;
+
+      let monthlyTotal = plan.price;
+
+      if (planPriceDisplay) {
+        planPriceDisplay.textContent = `${formatCurrency(plan.price)} / 월`;
+      }
+
+      const securityFee = securePlayerCheckbox && securePlayerCheckbox.checked ? SECURE_VIDEO_PRICE : 0;
+      if (securePriceDisplay) {
+        securePriceDisplay.textContent = securityFee
+          ? `${formatCurrency(securityFee)} / 월`
+          : "₩0 / 월";
+      }
+
+      monthlyTotal += securityFee;
+
+      if (contractTotalInput) {
+        contractTotalInput.value = monthlyTotal;
+      }
+
+      if (monthlyTotalText) {
+        monthlyTotalText.textContent = `${formatCurrency(monthlyTotal)} / 월`;
+      }
+
+      if (depositInput) {
+        depositInput.value = Math.round(monthlyTotal * DEPOSIT_RATIO);
+      }
     }
 
     cloudPlanSelect.addEventListener("change", (event) => {
       renderPlan(event.target.value);
     });
+
+    if (securePlayerCheckbox) {
+      securePlayerCheckbox.addEventListener("change", () => calculateTotals());
+    }
 
     renderPlan(cloudPlanSelect.value);
   </script>

@@ -101,6 +101,48 @@ select {
   margin-bottom: 0;
 }
 
+.total-highlight {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #e0edff;
+  border: 1px solid #c7dbff;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.price-tag {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.product-info small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.product-addon {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.checkbox-inline {
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+}
+
 .checkbox-group {
   display: flex;
   flex-wrap: wrap;
