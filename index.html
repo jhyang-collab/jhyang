@@ -12,8 +12,24 @@
 
     <fieldset>
       <legend>기본 정보</legend>
-      <label for="companyName">업체명</label>
-      <input id="companyName" name="companyName" type="text" placeholder="예: ㈜한빛테크" autocomplete="organization" required>
+      <div class="two-column">
+        <div>
+          <label for="companyName">업체명</label>
+          <input id="companyName" name="companyName" type="text" placeholder="예: ㈜한빛테크" autocomplete="organization" required>
+        </div>
+        <div>
+          <label for="contactName">담당자 이름</label>
+          <input id="contactName" name="contactName" type="text" placeholder="예: 김담당" required>
+        </div>
+        <div>
+          <label for="contactEmail">이메일 주소</label>
+          <input id="contactEmail" name="contactEmail" type="email" placeholder="예: contact@example.com" required>
+        </div>
+        <div>
+          <label for="contactPhone">연락처</label>
+          <input id="contactPhone" name="contactPhone" type="tel" placeholder="예: 010-0000-0000" required>
+        </div>
+      </div>
     </fieldset>
 
     <fieldset>
@@ -71,14 +87,14 @@
         <div class="product-item">
           <div class="product-info">
             <span>동영상 플레이어</span>
-            <small>보안 적용 시 1회성 추가 과금</small>
+            <small>보안 적용 시 월 ₩390,000 추가</small>
           </div>
           <div class="product-addon">
             <label class="checkbox-inline">
               <input type="checkbox" id="securePlayer">
-              보안 적용 (+₩390,000)
+              보안 적용 (+₩390,000/월)
             </label>
-            <strong id="securePriceDisplay" class="price-tag">₩0</strong>
+            <strong id="securePriceDisplay" class="price-tag">₩0 / 월</strong>
           </div>
         </div>
         <div class="product-item">
@@ -154,6 +170,18 @@
       <div class="quote-row">
         <span>업체명</span>
         <strong id="previewCompany">-</strong>
+      </div>
+      <div class="quote-row">
+        <span>담당자</span>
+        <strong id="previewContact">-</strong>
+      </div>
+      <div class="quote-row">
+        <span>이메일</span>
+        <strong id="previewEmail">-</strong>
+      </div>
+      <div class="quote-row">
+        <span>연락처</span>
+        <strong id="previewPhone">-</strong>
       </div>
       <div class="quote-row">
         <span>상품 구분</span>
@@ -249,6 +277,9 @@
     const formatter = new Intl.NumberFormat("ko-KR");
     const quoteForm = document.querySelector("form");
     const companyNameInput = document.getElementById("companyName");
+    const contactNameInput = document.getElementById("contactName");
+    const contactEmailInput = document.getElementById("contactEmail");
+    const contactPhoneInput = document.getElementById("contactPhone");
     const cloudPlanSelect = document.getElementById("cloudPlan");
     const planSummary = document.getElementById("planSummary");
     const storageInput = document.getElementById("storageSize");
@@ -268,6 +299,9 @@
     const excelButton = document.getElementById("excelQuote");
     const quotePreview = document.getElementById("quotePreview");
     const previewCompany = document.getElementById("previewCompany");
+    const previewContact = document.getElementById("previewContact");
+    const previewEmail = document.getElementById("previewEmail");
+    const previewPhone = document.getElementById("previewPhone");
     const previewPlan = document.getElementById("previewPlan");
     const previewMonthly = document.getElementById("previewMonthly");
     const previewMonths = document.getElementById("previewMonths");
@@ -275,7 +309,7 @@
     const previewTotal = document.getElementById("previewTotal");
     const previewDeposit = document.getElementById("previewDeposit");
 
-    const SECURE_VIDEO_PRICE = 390000;
+    const SECURE_VIDEO_MONTHLY = 390000;
     const SETUP_FEE = 500000;
 
     let lastCalculation = {
@@ -291,6 +325,23 @@
 
     function formatCurrency(amount) {
       return `₩${formatter.format(amount)}`;
+    }
+
+    function validateBasicInfo() {
+      const requiredFields = [
+        companyNameInput,
+        contactNameInput,
+        contactEmailInput,
+        contactPhoneInput
+      ];
+
+      const missingField = requiredFields.find((input) => !input || !input.value.trim());
+      if (missingField) {
+        alert("필수 정보 입력하셔야 합니다.");
+        missingField?.focus();
+        return false;
+      }
+      return true;
     }
 
     function getUsageMonths() {
@@ -338,7 +389,7 @@
       const serviceDetails = getSelectedServiceDetails();
       const serviceTotal = serviceDetails.reduce((sum, item) => sum + item.price, 0);
       const usageMonths = getUsageMonths();
-      const securityFee = securePlayerCheckbox && securePlayerCheckbox.checked ? SECURE_VIDEO_PRICE : 0;
+      const securityFee = securePlayerCheckbox && securePlayerCheckbox.checked ? SECURE_VIDEO_MONTHLY : 0;
 
       if (planPriceDisplay) {
         planPriceDisplay.textContent = `${formatCurrency(plan.price)} / 월`;
@@ -346,21 +397,22 @@
 
       if (securePriceDisplay) {
         securePriceDisplay.textContent = securityFee
-          ? `${formatCurrency(securityFee)}`
-          : "₩0";
+          ? `${formatCurrency(securityFee)} / 월`
+          : "₩0 / 월";
       }
 
+      const monthlyTotal = plan.price + securityFee;
       const contractTotal = usageMonths > 0
-        ? (plan.price * usageMonths) + SETUP_FEE + serviceTotal + securityFee
+        ? (monthlyTotal * usageMonths) + SETUP_FEE + serviceTotal
         : 0;
       const depositTotal = SETUP_FEE + serviceTotal;
 
       if (monthlyFeeInput) {
-        monthlyFeeInput.value = plan.price || "";
+        monthlyFeeInput.value = monthlyTotal || "";
       }
 
       if (monthlyFeeText) {
-        monthlyFeeText.textContent = `${formatCurrency(plan.price)} / 월`;
+        monthlyFeeText.textContent = `${formatCurrency(monthlyTotal)} / 월`;
       }
 
       if (contractTotalInput) {
@@ -380,7 +432,7 @@
       lastCalculation = {
         planKey,
         contractTotal,
-        monthlyFee: plan.price,
+        monthlyFee: monthlyTotal,
         depositTotal,
         usageMonths,
         serviceNames: serviceDetails.map((item) => item.title),
@@ -406,6 +458,7 @@
     });
 
     function generateQuote() {
+      if (!validateBasicInfo()) return;
       if (quoteForm && !quoteForm.reportValidity()) return;
       calculateTotals(cloudPlanSelect.value);
 
@@ -424,6 +477,9 @@
 
       previewCompany.textContent = companyName;
       previewPlan.textContent = plan ? plan.name : "-";
+      previewContact.textContent = contactNameInput?.value?.trim() || "-";
+      previewEmail.textContent = contactEmailInput?.value?.trim() || "-";
+      previewPhone.textContent = contactPhoneInput?.value?.trim() || "-";
       previewMonthly.textContent = lastCalculation.monthlyFee
         ? `${formatCurrency(lastCalculation.monthlyFee)} / 월`
         : "-";
@@ -476,6 +532,9 @@
       if (!quotePreview || quotePreview.hidden) return;
       const rows = [
         ["업체명", previewCompany.textContent],
+        ["담당자", previewContact.textContent],
+        ["이메일", previewEmail.textContent],
+        ["연락처", previewPhone.textContent],
         ["상품 구분", previewPlan.textContent],
         ["월 이용료", previewMonthly.textContent],
         ["이용 기간", previewMonths.textContent],
