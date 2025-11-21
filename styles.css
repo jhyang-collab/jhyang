@@ -50,12 +50,42 @@ label {
 
 input[type="text"],
 input[type="number"],
+input[type="email"],
+input[type="tel"],
 select {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 1rem;
+  box-sizing: border-box;
+}
+
+input[type="number"][readonly] {
+  text-align: right;
+  font-weight: 600;
+  color: #111827;
+  position: relative;
+}
+
+input[type="number"][readonly][data-display]::after {
+  content: attr(data-display);
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #111827;
+}
+
+input[type="number"][readonly][data-display] {
+  color: transparent;
+}
+
+.required-star {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-left: 2px;
 }
 
 .two-column {
