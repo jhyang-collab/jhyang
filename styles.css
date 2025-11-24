@@ -68,12 +68,12 @@ input[type="number"][readonly] {
   position: relative;
 }
 
-input[type="number"][readonly][data-display] {
+input[type="number"][readonly][data-formatted] {
   color: transparent;
 }
 
-input[type="number"][readonly][data-display]::after {
-  content: attr(data-display);
+input[type="number"][readonly][data-formatted]::after {
+  content: "₩" attr(data-formatted);
   position: absolute;
   right: 12px;
   top: 50%;
