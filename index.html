@@ -302,6 +302,24 @@
     </div>
   </div>
 
+  <!-- 동의 팝업 -->
+  <div id="consentModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>담당자 정보 전송 동의</h3>
+        <button type="button" class="modal-close" id="closeConsentModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>입력하신 담당자 정보가 맑은소프트 담당자에게 전송됩니다.</p>
+        <p>동의하시겠습니까?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="consentAgree" class="btn-primary">동의</button>
+        <button type="button" id="consentCancel" class="btn-secondary">취소</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const planData = {
       traffic: {
@@ -434,6 +452,11 @@
     const printButton = document.getElementById("printQuote");
     const excelButton = document.getElementById("excelQuote");
     const quotePreview = document.getElementById("quotePreview");
+    const consentModal = document.getElementById("consentModal");
+    const consentAgreeBtn = document.getElementById("consentAgree");
+    const consentCancelBtn = document.getElementById("consentCancel");
+    const closeConsentModalBtn = document.getElementById("closeConsentModal");
+    let pendingAction = null; // 동의 후 실행할 액션 저장
     const previewCompany = document.getElementById("previewCompany");
     const previewContact = document.getElementById("previewContact");
     const previewEmail = document.getElementById("previewEmail");
@@ -549,6 +572,44 @@
       });
     }
 
+    // 동의 팝업 이벤트 리스너
+    if (consentAgreeBtn) {
+      consentAgreeBtn.addEventListener("click", () => {
+        if (consentModal) {
+          consentModal.hidden = true;
+        }
+        executePendingAction();
+      });
+    }
+
+    if (consentCancelBtn) {
+      consentCancelBtn.addEventListener("click", () => {
+        if (consentModal) {
+          consentModal.hidden = true;
+        }
+        pendingAction = null;
+      });
+    }
+
+    if (closeConsentModalBtn) {
+      closeConsentModalBtn.addEventListener("click", () => {
+        if (consentModal) {
+          consentModal.hidden = true;
+        }
+        pendingAction = null;
+      });
+    }
+
+    if (consentModal) {
+      consentModal.hidden = true;
+      consentModal.addEventListener("click", (e) => {
+        if (e.target === consentModal) {
+          consentModal.hidden = true;
+          pendingAction = null;
+        }
+      });
+    }
+
     updateContactStatus();
 
     function getUsageMonths() {
@@ -620,7 +681,8 @@
         const formatted = monthlyTotal ? formatCurrency(monthlyTotal) : "₩0";
         monthlyFeeInput.value = monthlyTotal || "";
         monthlyFeeInput.setAttribute("data-formatted", formatted);
-        monthlyFeeInput.setAttribute("data-value", monthlyTotal || 0);
+        // input 필드에 직접 표시하기 위해 placeholder 사용
+        monthlyFeeInput.placeholder = formatted;
       }
 
       if (monthlyFeeText) {
@@ -631,7 +693,7 @@
         const formatted = contractTotal ? formatCurrency(contractTotal) : "₩0";
         contractTotalInput.value = contractTotal || "";
         contractTotalInput.setAttribute("data-formatted", formatted);
-        contractTotalInput.setAttribute("data-value", contractTotal || 0);
+        contractTotalInput.placeholder = formatted;
       }
 
       if (contractTotalText) {
@@ -644,7 +706,7 @@
         const formatted = depositTotal ? formatCurrency(depositTotal) : "₩0";
         depositInput.value = depositTotal || "";
         depositInput.setAttribute("data-formatted", formatted);
-        depositInput.setAttribute("data-value", depositTotal || 0);
+        depositInput.placeholder = formatted;
       }
 
       lastCalculation = {
@@ -675,6 +737,28 @@
       checkbox.addEventListener("change", () => calculateTotals());
     });
 
+    function showConsentModal(action) {
+      pendingAction = action;
+      if (consentModal) {
+        consentModal.hidden = false;
+      }
+    }
+
+    function executePendingAction() {
+      if (!pendingAction) return;
+      
+      const action = pendingAction;
+      pendingAction = null;
+
+      if (action === "generate") {
+        generateQuoteInternal();
+      } else if (action === "print") {
+        openPrintWindowInternal();
+      } else if (action === "excel") {
+        exportToExcelInternal();
+      }
+    }
+
     function generateQuote() {
       if (!validateBasicInfo()) return;
       if (quoteForm && !quoteForm.reportValidity()) return;
@@ -686,6 +770,10 @@
         return;
       }
 
+      showConsentModal("generate");
+    }
+
+    function generateQuoteInternal() {
       const plan = planData[lastCalculation.planKey];
       const companyName = companyNameInput?.value?.trim() || "-";
       const services = [...lastCalculation.serviceNames];
@@ -720,7 +808,14 @@
     }
 
     function openPrintWindow() {
-      if (!quotePreview || quotePreview.hidden) return;
+      if (!quotePreview || quotePreview.hidden) {
+        alert("먼저 임시 견적을 생성해 주세요.");
+        return;
+      }
+      showConsentModal("print");
+    }
+
+    function openPrintWindowInternal() {
       const printWindow = window.open("", "_blank", "width=800,height=600");
       if (!printWindow) return;
       const styles = `
@@ -755,7 +850,14 @@
     }
 
     function exportToExcel() {
-      if (!quotePreview || quotePreview.hidden) return;
+      if (!quotePreview || quotePreview.hidden) {
+        alert("먼저 임시 견적을 생성해 주세요.");
+        return;
+      }
+      showConsentModal("excel");
+    }
+
+    function exportToExcelInternal() {
       const rows = [
         ["업체명", previewCompany.textContent],
         ["담당자", previewContact.textContent],
