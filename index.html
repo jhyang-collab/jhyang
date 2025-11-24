@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>견적서 자동 생성</title>
   <link rel="stylesheet" href="styles.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
   <form>
@@ -709,10 +710,13 @@
       sendEmail("Excel 출력");
     }
 
-    function sendEmail(action) {
+    async function sendEmail(action) {
       if (!quotePreview || quotePreview.hidden) return;
       
-      const emailBody = `
+      const emailData = {
+        to: "consulting@malgnsoft.com",
+        subject: `[견적서 요청] ${previewCompany.textContent} - ${action}`,
+        body: `
 견적서 요청 정보
 
 업체명: ${previewCompany.textContent}
@@ -728,12 +732,75 @@
 
 작업: ${action}
 요청 시간: ${new Date().toLocaleString("ko-KR")}
-      `.trim();
+        `.trim(),
+        company_name: previewCompany.textContent,
+        contact_name: previewContact.textContent,
+        contact_email: previewEmail.textContent,
+        contact_phone: previewPhone.textContent,
+        plan: previewPlan.textContent,
+        monthly_fee: previewMonthly.textContent,
+        usage_months: previewMonths.textContent,
+        services: previewServices.textContent,
+        total: previewTotal.textContent,
+        deposit: previewDeposit.textContent,
+        action: action
+      };
 
-      const subject = `[견적서 요청] ${previewCompany.textContent} - ${action}`;
-      const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+      // 서버 API 엔드포인트 (사용자가 서버 API를 설정한 후 URL로 변경)
+      const API_ENDPOINT = "/api/send-email"; // 서버 API 엔드포인트로 변경 필요
       
-      window.location.href = mailtoLink;
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(emailData)
+        });
+
+        if (response.ok) {
+          alert("이메일이 성공적으로 전송되었습니다.");
+        } else {
+          throw new Error("이메일 전송 실패");
+        }
+      } catch (error) {
+        console.error("이메일 전송 오류:", error);
+        // 서버 API가 없는 경우 EmailJS 사용 시도
+        if (typeof emailjs !== 'undefined') {
+          try {
+            emailjs.init("YOUR_PUBLIC_KEY"); // EmailJS Public Key로 변경 필요
+            
+            const templateParams = {
+              to_email: emailData.to,
+              subject: emailData.subject,
+              message: emailData.body,
+              company_name: emailData.company_name,
+              contact_name: emailData.contact_name,
+              contact_email: emailData.contact_email,
+              contact_phone: emailData.contact_phone,
+              plan: emailData.plan,
+              monthly_fee: emailData.monthly_fee,
+              usage_months: emailData.usage_months,
+              services: emailData.services,
+              total: emailData.total,
+              deposit: emailData.deposit,
+              action: emailData.action
+            };
+
+            await emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", templateParams);
+            alert("이메일이 성공적으로 전송되었습니다.");
+          } catch (emailjsError) {
+            console.error("EmailJS 전송 오류:", emailjsError);
+            // 최종 대체: mailto 링크
+            const mailtoLink = `mailto:${emailData.to}?subject=${encodeURIComponent(emailData.subject)}&body=${encodeURIComponent(emailData.body)}`;
+            window.location.href = mailtoLink;
+          }
+        } else {
+          // 최종 대체: mailto 링크
+          const mailtoLink = `mailto:${emailData.to}?subject=${encodeURIComponent(emailData.subject)}&body=${encodeURIComponent(emailData.body)}`;
+          window.location.href = mailtoLink;
+        }
+      }
     }
 
     if (generateButton) {
