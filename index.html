@@ -119,13 +119,32 @@
       <legend>부가서비스</legend>
       <p class="note">필요한 항목을 선택해 주세요. (VAT 미포함)</p>
       <div class="service-list">
-        <label class="service-item">
-          <div>
-            <span>PG 전자결제</span>
-            <small>1회성 비용 ₩100,000</small>
+        <div class="service-group">
+          <div class="service-group-title">PG 전자결제 (1회성 비용)</div>
+          <div class="service-sub-list">
+            <label class="service-item">
+              <div>
+                <span>KG모빌리언스</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="checkbox" id="servicePgKgm" data-service-price="100000" data-service-name="PG 전자결제 (KG모빌리언스)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>KG이니시스</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="checkbox" id="servicePgInicis" data-service-price="100000" data-service-name="PG 전자결제 (KG이니시스)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>토스</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="checkbox" id="servicePgToss" data-service-price="100000" data-service-name="PG 전자결제 (토스)">
+            </label>
           </div>
-          <input type="checkbox" id="servicePg" data-service-price="100000">
-        </label>
+        </div>
         <label class="service-item">
           <div>
             <span>수료증 제작</span>
@@ -146,6 +165,60 @@
             <small>1회성 비용 ₩500,000</small>
           </div>
           <input type="checkbox" id="serviceApi" data-service-price="500000">
+        </label>
+        <div class="service-group">
+          <div class="service-group-title">소셜로그인 (1회성 비용)</div>
+          <div class="service-sub-list">
+            <label class="service-item">
+              <div>
+                <span>네이버</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="checkbox" id="serviceSocialNaver" data-service-price="100000" data-service-name="소셜로그인 (네이버)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>구글</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="checkbox" id="serviceSocialGoogle" data-service-price="100000" data-service-name="소셜로그인 (구글)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>카카오톡</span>
+                <small>1회성 비용 ₩50,000</small>
+              </div>
+              <input type="checkbox" id="serviceSocialKakao" data-service-price="50000" data-service-name="소셜로그인 (카카오톡)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>페이스북</span>
+                <small>1회성 비용 ₩50,000</small>
+              </div>
+              <input type="checkbox" id="serviceSocialFacebook" data-service-price="50000" data-service-name="소셜로그인 (페이스북)">
+            </label>
+          </div>
+        </div>
+        <label class="service-item">
+          <div>
+            <span>보다 화상 서비스</span>
+            <small>1회성 비용 ₩20,000</small>
+          </div>
+          <input type="checkbox" id="serviceVideo" data-service-price="20000">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>SMS문자서비스/알림톡</span>
+            <small>차감방식, 고객사 직접 계약</small>
+          </div>
+          <input type="checkbox" id="serviceSms" data-service-price="0" data-service-name="SMS문자서비스/알림톡">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>휴대폰 본인인증 / 아이핀</span>
+            <small>적립금 차감 방식, 고객사 직접 계약</small>
+          </div>
+          <input type="checkbox" id="serviceAuth" data-service-price="0" data-service-name="휴대폰 본인인증 / 아이핀">
         </label>
       </div>
     </fieldset>
@@ -508,7 +581,9 @@
         .filter((checkbox) => checkbox.checked)
         .map((checkbox) => {
           const label = checkbox.closest(".service-item");
-          const title = label ? label.querySelector("span")?.textContent.trim() : "부가서비스";
+          // data-service-name 속성이 있으면 우선 사용, 없으면 span 텍스트 사용
+          const customName = checkbox.dataset.serviceName;
+          const title = customName || (label ? label.querySelector("span")?.textContent.trim() : "부가서비스");
           const price = Number(checkbox.dataset.servicePrice || 0);
           return {
             title: title || "부가서비스",

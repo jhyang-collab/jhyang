@@ -329,6 +329,35 @@ input[type="number"][readonly][data-display]::after {
   height: 18px;
 }
 
+.service-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.service-group-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #374151;
+  margin-bottom: 4px;
+  padding: 8px 0;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.service-sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 16px;
+  margin-top: 8px;
+}
+
+.service-sub-list .service-item {
+  border: 1px solid #e9ecef;
+  background: #f8f9fa;
+}
+
 .note {
   font-size: 0.9rem;
   color: #6b7280;
