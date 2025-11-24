@@ -699,14 +699,18 @@
       previewEmail.textContent = contactInfo.email || "-";
       previewPhone.textContent = contactInfo.phone || "-";
       previewMonthly.textContent = lastCalculation.monthlyFee
-        ? `${formatCurrency(lastCalculation.monthlyFee)} / 월`
+        ? `${formatCurrency(lastCalculation.monthlyFee)} / 월 (VAT 별도)`
         : "-";
       previewMonths.textContent = lastCalculation.usageMonths
         ? `${lastCalculation.usageMonths}개월`
         : "-";
       previewServices.textContent = services.length ? services.join(", ") : "선택 없음";
-      previewTotal.textContent = formatCurrency(lastCalculation.contractTotal);
-      previewDeposit.textContent = formatCurrency(lastCalculation.depositTotal);
+      previewTotal.textContent = lastCalculation.contractTotal
+        ? `${formatCurrency(lastCalculation.contractTotal)} (VAT 별도)`
+        : "-";
+      previewDeposit.textContent = lastCalculation.depositTotal
+        ? `${formatCurrency(lastCalculation.depositTotal)} (VAT 별도)`
+        : "-";
 
       quotePreview.hidden = false;
       printButton.disabled = false;
