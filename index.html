@@ -470,6 +470,7 @@
       saveContactInfoBtn.addEventListener("click", saveContactInfo);
     }
     if (contactModal) {
+      contactModal.hidden = true;
       contactModal.addEventListener("click", (e) => {
         if (e.target === contactModal) closeModal();
       });
