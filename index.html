@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>견적서 자동 생성</title>
   <link rel="stylesheet" href="styles.css">
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
   <form>
@@ -120,28 +119,28 @@
       <p class="note">필요한 항목을 선택해 주세요. (VAT 미포함)</p>
       <div class="service-list">
         <div class="service-group">
-          <div class="service-group-title">PG 전자결제 (1회성 비용)</div>
+          <div class="service-group-title">PG 전자결제 (1회성 비용) <span class="note-inline">※ 단일 선택만 가능</span></div>
           <div class="service-sub-list">
             <label class="service-item">
               <div>
                 <span>KG모빌리언스</span>
                 <small>1회성 비용 ₩100,000</small>
               </div>
-              <input type="checkbox" id="servicePgKgm" data-service-price="100000" data-service-name="PG 전자결제 (KG모빌리언스)">
+              <input type="radio" name="pgService" id="servicePgKgm" value="kgm" data-service-price="100000" data-service-name="PG 전자결제 (KG모빌리언스)">
             </label>
             <label class="service-item">
               <div>
                 <span>KG이니시스</span>
                 <small>1회성 비용 ₩100,000</small>
               </div>
-              <input type="checkbox" id="servicePgInicis" data-service-price="100000" data-service-name="PG 전자결제 (KG이니시스)">
+              <input type="radio" name="pgService" id="servicePgInicis" value="inicis" data-service-price="100000" data-service-name="PG 전자결제 (KG이니시스)">
             </label>
             <label class="service-item">
               <div>
                 <span>토스</span>
                 <small>1회성 비용 ₩100,000</small>
               </div>
-              <input type="checkbox" id="servicePgToss" data-service-price="100000" data-service-name="PG 전자결제 (토스)">
+              <input type="radio" name="pgService" id="servicePgToss" value="toss" data-service-price="100000" data-service-name="PG 전자결제 (토스)">
             </label>
           </div>
         </div>
@@ -785,7 +784,7 @@
       sendEmail("Excel 출력");
     }
 
-    function sendEmail(action) {
+    async function sendEmail(action) {
       if (!quotePreview || quotePreview.hidden) return;
       
       const emailBody = `
@@ -808,46 +807,54 @@
 
       const subject = `[견적서 요청] ${previewCompany.textContent} - ${action}`;
       
-      // EmailJS를 사용한 자동 이메일 전송
+      // Formspree를 사용한 자동 이메일 전송
       // 설정 방법:
-      // 1. https://www.emailjs.com/ 에서 무료 계정 생성
-      // 2. Email Service 추가 (Gmail 등)
-      // 3. Email Template 생성
-      // 4. 아래 값들을 설정:
-      const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY"; // Account > API Keys > Public Key
-      const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID"; // Email Services > Service ID
-      const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID"; // Email Templates > Template ID
+      // 1. https://formspree.io/ 에서 무료 계정 생성
+      // 2. 새 Form 생성
+      // 3. 받은 Form ID로 아래 FORMSPREE_FORM_ID 변경
+      // 4. Form 설정에서 "Send emails to"에 consulting@malgnsoft.com 입력
+      const FORMSPREE_FORM_ID = "YOUR_FORM_ID"; // Formspree Form ID로 변경 필요
+      const FORMSPREE_ENDPOINT = `https://formspree.io/f/${FORMSPREE_FORM_ID}`;
       
-      if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
-        emailjs.init(EMAILJS_PUBLIC_KEY);
-        
-        const templateParams = {
-          to_email: "consulting@malgnsoft.com",
-          subject: subject,
-          message: emailBody,
-          company_name: previewCompany.textContent,
-          contact_name: previewContact.textContent,
-          contact_email: previewEmail.textContent,
-          contact_phone: previewPhone.textContent,
-          plan: previewPlan.textContent,
-          monthly_fee: previewMonthly.textContent,
-          usage_months: previewMonths.textContent,
-          services: previewServices.textContent,
-          total: previewTotal.textContent,
-          deposit: previewDeposit.textContent,
-          action: action
-        };
+      if (FORMSPREE_FORM_ID !== "YOUR_FORM_ID") {
+        try {
+          const formData = new FormData();
+          formData.append("_to", "consulting@malgnsoft.com");
+          formData.append("_subject", subject);
+          formData.append("_replyto", previewEmail.textContent);
+          formData.append("message", emailBody);
+          formData.append("company_name", previewCompany.textContent);
+          formData.append("contact_name", previewContact.textContent);
+          formData.append("contact_email", previewEmail.textContent);
+          formData.append("contact_phone", previewPhone.textContent);
+          formData.append("plan", previewPlan.textContent);
+          formData.append("monthly_fee", previewMonthly.textContent);
+          formData.append("usage_months", previewMonths.textContent);
+          formData.append("services", previewServices.textContent);
+          formData.append("total", previewTotal.textContent);
+          formData.append("deposit", previewDeposit.textContent);
+          formData.append("action", action);
 
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-          .then(function(response) {
-            console.log("이메일 전송 성공:", response.status, response.text);
-            alert("이메일이 성공적으로 전송되었습니다.");
-          }, function(error) {
-            console.error("이메일 전송 실패:", error);
-            alert("이메일 전송에 실패했습니다. 관리자에게 문의해 주세요.");
+          const response = await fetch(FORMSPREE_ENDPOINT, {
+            method: "POST",
+            body: formData,
+            headers: {
+              "Accept": "application/json"
+            }
           });
+
+          if (response.ok) {
+            alert("이메일이 성공적으로 전송되었습니다.");
+          } else {
+            const data = await response.json();
+            throw new Error(data.error || "이메일 전송 실패");
+          }
+        } catch (error) {
+          console.error("이메일 전송 오류:", error);
+          alert("이메일 전송에 실패했습니다. 관리자에게 문의해 주세요.");
+        }
       } else {
-        // EmailJS가 설정되지 않은 경우 mailto 링크 사용
+        // Formspree가 설정되지 않은 경우 mailto 링크 사용
         const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
         window.location.href = mailtoLink;
       }
