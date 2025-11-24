@@ -1,0 +1,7 @@
+name = "send-email-api"
+main = "workers/send-email.js"
+compatibility_date = "2024-01-01"
+
+[env.production]
+vars = { RESEND_API_KEY = "YOUR_RESEND_API_KEY" }
+
