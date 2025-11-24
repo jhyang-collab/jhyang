@@ -68,12 +68,12 @@ input[type="number"][readonly] {
   position: relative;
 }
 
-input[type="number"][readonly][data-formatted] {
-  position: relative;
+input[type="number"][readonly][data-display] {
+  color: transparent;
 }
 
-input[type="number"][readonly][data-formatted]::before {
-  content: attr(data-formatted);
+input[type="number"][readonly][data-display]::after {
+  content: attr(data-display);
   position: absolute;
   right: 12px;
   top: 50%;
@@ -81,11 +81,8 @@ input[type="number"][readonly][data-formatted]::before {
   pointer-events: none;
   color: #111827;
   font-weight: 600;
-}
-
-input[type="number"][readonly][data-formatted] {
-  color: transparent;
   background-color: #fff;
+  padding: 0 4px;
 }
 
 .btn-secondary {

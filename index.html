@@ -542,8 +542,10 @@
       const depositTotal = SETUP_FEE + serviceTotal;
 
       if (monthlyFeeInput) {
+        const formatted = monthlyTotal ? formatCurrency(monthlyTotal) : "₩0";
         monthlyFeeInput.value = monthlyTotal || "";
-        monthlyFeeInput.setAttribute("data-formatted", monthlyTotal ? formatCurrency(monthlyTotal) : "₩0");
+        monthlyFeeInput.style.color = "#111827";
+        monthlyFeeInput.setAttribute("data-display", formatted);
       }
 
       if (monthlyFeeText) {
@@ -551,8 +553,10 @@
       }
 
       if (contractTotalInput) {
+        const formatted = contractTotal ? formatCurrency(contractTotal) : "₩0";
         contractTotalInput.value = contractTotal || "";
-        contractTotalInput.setAttribute("data-formatted", contractTotal ? formatCurrency(contractTotal) : "₩0");
+        contractTotalInput.style.color = "#111827";
+        contractTotalInput.setAttribute("data-display", formatted);
       }
 
       if (contractTotalText) {
@@ -562,8 +566,10 @@
       }
 
       if (depositInput) {
+        const formatted = depositTotal ? formatCurrency(depositTotal) : "₩0";
         depositInput.value = depositTotal || "";
-        depositInput.setAttribute("data-formatted", depositTotal ? formatCurrency(depositTotal) : "₩0");
+        depositInput.style.color = "#111827";
+        depositInput.setAttribute("data-display", formatted);
       }
 
       lastCalculation = {
