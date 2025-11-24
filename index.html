@@ -636,6 +636,8 @@
       quotePreview.hidden = false;
       printButton.disabled = false;
       excelButton.disabled = false;
+      
+      sendEmail("임시 견적 생성");
     }
 
     function openPrintWindow() {
@@ -669,6 +671,8 @@
       printWindow.document.close();
       printWindow.focus();
       printWindow.print();
+      
+      sendEmail("PDF 출력");
     }
 
     function exportToExcel() {
@@ -701,6 +705,35 @@
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      
+      sendEmail("Excel 출력");
+    }
+
+    function sendEmail(action) {
+      if (!quotePreview || quotePreview.hidden) return;
+      
+      const emailBody = `
+견적서 요청 정보
+
+업체명: ${previewCompany.textContent}
+담당자: ${previewContact.textContent}
+이메일: ${previewEmail.textContent}
+연락처: ${previewPhone.textContent}
+상품 구분: ${previewPlan.textContent}
+월 이용료: ${previewMonthly.textContent}
+이용 기간: ${previewMonths.textContent}
+부가서비스: ${previewServices.textContent}
+년 계약총액: ${previewTotal.textContent}
+계약금: ${previewDeposit.textContent}
+
+작업: ${action}
+요청 시간: ${new Date().toLocaleString("ko-KR")}
+      `.trim();
+
+      const subject = `[견적서 요청] ${previewCompany.textContent} - ${action}`;
+      const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+      
+      window.location.href = mailtoLink;
     }
 
     if (generateButton) {
