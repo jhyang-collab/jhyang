@@ -12,23 +12,13 @@
 
     <fieldset>
       <legend>기본 정보</legend>
-      <div class="two-column">
-        <div>
-          <label for="companyName">업체명 <span class="required-star">*</span></label>
-          <input id="companyName" name="companyName" type="text" placeholder="예: ㈜한빛테크" autocomplete="organization" required>
-        </div>
-        <div>
-          <label for="contactName">담당자 이름 <span class="required-star">*</span></label>
-          <input id="contactName" name="contactName" type="text" placeholder="예: 김담당" required>
-        </div>
-        <div>
-          <label for="contactEmail">이메일 주소 <span class="required-star">*</span></label>
-          <input id="contactEmail" name="contactEmail" type="email" placeholder="예: contact@example.com" required>
-        </div>
-        <div>
-          <label for="contactPhone">연락처 <span class="required-star">*</span></label>
-          <input id="contactPhone" name="contactPhone" type="tel" placeholder="예: 010-0000-0000" required>
-        </div>
+      <div>
+        <label for="companyName">업체명 <span class="required-star">*</span></label>
+        <input id="companyName" name="companyName" type="text" placeholder="예: ㈜한빛테크" autocomplete="organization" required>
+      </div>
+      <div style="margin-top: 12px;">
+        <button type="button" id="openContactModal" class="btn-secondary">담당자 정보 입력</button>
+        <span id="contactInfoStatus" class="contact-status"></span>
       </div>
     </fieldset>
 
@@ -212,6 +202,33 @@
     </div>
   </section>
 
+  <div id="contactModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>담당자 정보 입력</h3>
+        <button type="button" class="modal-close" id="closeContactModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <label for="modalContactName">담당자 이름 <span class="required-star">*</span></label>
+          <input id="modalContactName" type="text" placeholder="예: 김담당" required>
+        </div>
+        <div>
+          <label for="modalContactEmail">이메일 주소 <span class="required-star">*</span></label>
+          <input id="modalContactEmail" type="email" placeholder="예: contact@example.com" required>
+        </div>
+        <div>
+          <label for="modalContactPhone">연락처 <span class="required-star">*</span></label>
+          <input id="modalContactPhone" type="tel" placeholder="예: 010-0000-0000" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="saveContactInfo" class="btn-primary">저장</button>
+        <button type="button" id="cancelContactInfo" class="btn-secondary">취소</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const planData = {
       traffic: {
@@ -311,9 +328,21 @@
     const formatter = new Intl.NumberFormat("ko-KR");
     const quoteForm = document.querySelector("form");
     const companyNameInput = document.getElementById("companyName");
-    const contactNameInput = document.getElementById("contactName");
-    const contactEmailInput = document.getElementById("contactEmail");
-    const contactPhoneInput = document.getElementById("contactPhone");
+    const contactModal = document.getElementById("contactModal");
+    const openContactModalBtn = document.getElementById("openContactModal");
+    const closeContactModalBtn = document.getElementById("closeContactModal");
+    const saveContactInfoBtn = document.getElementById("saveContactInfo");
+    const cancelContactInfoBtn = document.getElementById("cancelContactInfo");
+    const contactInfoStatus = document.getElementById("contactInfoStatus");
+    const modalContactName = document.getElementById("modalContactName");
+    const modalContactEmail = document.getElementById("modalContactEmail");
+    const modalContactPhone = document.getElementById("modalContactPhone");
+    
+    let contactInfo = {
+      name: "",
+      email: "",
+      phone: ""
+    };
     const cloudPlanSelect = document.getElementById("cloudPlan");
     const planSummary = document.getElementById("planSummary");
     const storageInput = document.getElementById("storageSize");
@@ -362,21 +391,91 @@
     }
 
     function validateBasicInfo() {
-      const requiredFields = [
-        companyNameInput,
-        contactNameInput,
-        contactEmailInput,
-        contactPhoneInput
-      ];
-
-      const missingField = requiredFields.find((input) => !input || !input.value.trim());
-      if (missingField) {
-        alert("필수 정보 입력하셔야 합니다.");
-        missingField?.focus();
+      if (!companyNameInput || !companyNameInput.value.trim()) {
+        alert("업체명을 입력하셔야 합니다.");
+        companyNameInput?.focus();
+        return false;
+      }
+      
+      if (!contactInfo.name || !contactInfo.email || !contactInfo.phone) {
+        alert("담당자 정보를 입력하셔야 합니다. '담당자 정보 입력' 버튼을 클릭해 주세요.");
+        openContactModalBtn?.focus();
         return false;
       }
       return true;
     }
+
+    function updateContactStatus() {
+      if (contactInfo.name && contactInfo.email && contactInfo.phone) {
+        contactInfoStatus.textContent = `✓ ${contactInfo.name} (${contactInfo.email})`;
+        contactInfoStatus.style.color = "#059669";
+      } else {
+        contactInfoStatus.textContent = "담당자 정보를 입력해 주세요.";
+        contactInfoStatus.style.color = "#dc2626";
+      }
+    }
+
+    function openModal() {
+      if (contactModal) {
+        contactModal.hidden = false;
+        if (contactInfo.name) modalContactName.value = contactInfo.name;
+        if (contactInfo.email) modalContactEmail.value = contactInfo.email;
+        if (contactInfo.phone) modalContactPhone.value = contactInfo.phone;
+        modalContactName?.focus();
+      }
+    }
+
+    function closeModal() {
+      if (contactModal) {
+        contactModal.hidden = true;
+      }
+    }
+
+    function saveContactInfo() {
+      if (!modalContactName || !modalContactName.value.trim()) {
+        alert("담당자 이름을 입력해 주세요.");
+        modalContactName?.focus();
+        return;
+      }
+      if (!modalContactEmail || !modalContactEmail.value.trim()) {
+        alert("이메일 주소를 입력해 주세요.");
+        modalContactEmail?.focus();
+        return;
+      }
+      if (!modalContactPhone || !modalContactPhone.value.trim()) {
+        alert("연락처를 입력해 주세요.");
+        modalContactPhone?.focus();
+        return;
+      }
+
+      contactInfo = {
+        name: modalContactName.value.trim(),
+        email: modalContactEmail.value.trim(),
+        phone: modalContactPhone.value.trim()
+      };
+      updateContactStatus();
+      closeModal();
+    }
+
+    if (openContactModalBtn) {
+      openContactModalBtn.addEventListener("click", openModal);
+    }
+    if (closeContactModalBtn) {
+      closeContactModalBtn.addEventListener("click", closeModal);
+    }
+    if (cancelContactInfoBtn) {
+      cancelContactInfoBtn.addEventListener("click", closeModal);
+    }
+    if (saveContactInfoBtn) {
+      saveContactInfoBtn.addEventListener("click", saveContactInfo);
+    }
+    if (contactModal) {
+      contactModal.addEventListener("click", (e) => {
+        if (e.target === contactModal) closeModal();
+      });
+    }
+
+    updateContactStatus();
 
     function getUsageMonths() {
       if (!usageMonthsInput) return 0;
@@ -443,8 +542,7 @@
 
       if (monthlyFeeInput) {
         monthlyFeeInput.value = monthlyTotal || "";
-        const formatted = monthlyTotal ? formatter.format(monthlyTotal) : "0";
-        monthlyFeeInput.setAttribute("data-display", formatted);
+        monthlyFeeInput.setAttribute("data-formatted", monthlyTotal ? formatCurrency(monthlyTotal) : "₩0");
       }
 
       if (monthlyFeeText) {
@@ -453,8 +551,7 @@
 
       if (contractTotalInput) {
         contractTotalInput.value = contractTotal || "";
-        const formatted = contractTotal ? formatter.format(contractTotal) : "0";
-        contractTotalInput.setAttribute("data-display", formatted);
+        contractTotalInput.setAttribute("data-formatted", contractTotal ? formatCurrency(contractTotal) : "₩0");
       }
 
       if (contractTotalText) {
@@ -465,8 +562,7 @@
 
       if (depositInput) {
         depositInput.value = depositTotal || "";
-        const formatted = depositTotal ? formatter.format(depositTotal) : "0";
-        depositInput.setAttribute("data-display", formatted);
+        depositInput.setAttribute("data-formatted", depositTotal ? formatCurrency(depositTotal) : "₩0");
       }
 
       lastCalculation = {
@@ -517,9 +613,9 @@
 
       previewCompany.textContent = companyName;
       previewPlan.textContent = plan ? plan.name : "-";
-      previewContact.textContent = contactNameInput?.value?.trim() || "-";
-      previewEmail.textContent = contactEmailInput?.value?.trim() || "-";
-      previewPhone.textContent = contactPhoneInput?.value?.trim() || "-";
+      previewContact.textContent = contactInfo.name || "-";
+      previewEmail.textContent = contactInfo.email || "-";
+      previewPhone.textContent = contactInfo.phone || "-";
       previewMonthly.textContent = lastCalculation.monthlyFee
         ? `${formatCurrency(lastCalculation.monthlyFee)} / 월`
         : "-";
