@@ -70,20 +70,22 @@ input[type="number"][readonly] {
 
 input[type="number"][readonly][data-formatted] {
   color: transparent;
+  position: relative;
 }
 
 input[type="number"][readonly][data-formatted]::after {
-  content: "₩" attr(data-formatted);
+  content: attr(data-formatted);
   position: absolute;
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  color: #111827;
+  color: #111827 !important;
   font-weight: 600;
   background-color: #fff;
   padding: 0 4px;
-  z-index: 1;
+  z-index: 10;
+  white-space: nowrap;
 }
 
 .btn-secondary {
