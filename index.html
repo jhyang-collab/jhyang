@@ -236,47 +236,158 @@
   </form>
 
   <section id="quotePreview" class="quote-preview" hidden aria-live="polite">
-    <h2>임시 견적서</h2>
-    <div class="quote-card">
-      <div class="quote-row">
-        <span>업체명</span>
-        <strong id="previewCompany">-</strong>
+    <div class="quote-document">
+      <!-- 견적서 헤더 -->
+      <div class="quote-header">
+        <div class="quote-company-info">
+          <h1 class="quote-company-name">맑은소프트</h1>
+          <div class="quote-company-details">
+            <p>서울특별시 구로구 디지털로 288, 1701호</p>
+            <p>Tel: 1666-3412 | 사업자등록번호: 119-86-39050</p>
+            <p>대표자: 하근호</p>
+          </div>
+        </div>
+        <div class="quote-title">
+          <h2>견적서</h2>
+        </div>
       </div>
-      <div class="quote-row">
-        <span>담당자</span>
-        <strong id="previewContact">-</strong>
+
+      <!-- 견적 정보 -->
+      <div class="quote-info-section">
+        <div class="quote-info-grid">
+          <div class="quote-info-item">
+            <span class="quote-info-label">견적 명칭</span>
+            <span class="quote-info-value" id="previewQuoteName">-</span>
+          </div>
+          <div class="quote-info-item">
+            <span class="quote-info-label">견적 일자</span>
+            <span class="quote-info-value" id="previewQuoteDate">-</span>
+          </div>
+          <div class="quote-info-item">
+            <span class="quote-info-label">계약 총액</span>
+            <span class="quote-info-value" id="previewContractTotal">-</span>
+          </div>
+          <div class="quote-info-item">
+            <span class="quote-info-label">계약금</span>
+            <span class="quote-info-value" id="previewDeposit">-</span>
+          </div>
+        </div>
       </div>
-      <div class="quote-row">
-        <span>이메일</span>
-        <strong id="previewEmail">-</strong>
+
+      <!-- 고객 정보 -->
+      <div class="quote-customer-section">
+        <h3>고객 정보</h3>
+        <div class="quote-customer-grid">
+          <div class="quote-customer-item">
+            <span>업체명</span>
+            <strong id="previewCompany">-</strong>
+          </div>
+          <div class="quote-customer-item">
+            <span>담당자</span>
+            <strong id="previewContact">-</strong>
+          </div>
+          <div class="quote-customer-item">
+            <span>이메일</span>
+            <strong id="previewEmail">-</strong>
+          </div>
+          <div class="quote-customer-item">
+            <span>연락처</span>
+            <strong id="previewPhone">-</strong>
+          </div>
+        </div>
       </div>
-      <div class="quote-row">
-        <span>연락처</span>
-        <strong id="previewPhone">-</strong>
+
+      <!-- 기본 항목 -->
+      <div class="quote-items-section">
+        <h3>기본 항목</h3>
+        <table class="quote-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>세부항목</th>
+              <th>수량</th>
+              <th>단위</th>
+              <th>단가</th>
+              <th>공급가액</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="previewBasicItems">
+            <!-- JavaScript로 동적 생성 -->
+          </tbody>
+          <tfoot>
+            <tr class="quote-summary-row">
+              <td colspan="5" class="quote-summary-label">계약 총액</td>
+              <td class="quote-summary-value" id="previewTotalAmount">-</td>
+              <td></td>
+            </tr>
+            <tr class="quote-summary-row">
+              <td colspan="5" class="quote-summary-label">월 사용료</td>
+              <td class="quote-summary-value" id="previewMonthlyAmount">-</td>
+              <td></td>
+            </tr>
+            <tr class="quote-summary-row">
+              <td colspan="5" class="quote-summary-label">계약금 (세팅비+부가서비스)</td>
+              <td class="quote-summary-value" id="previewDepositAmount">-</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
-      <div class="quote-row">
-        <span>상품 구분</span>
-        <strong id="previewPlan">-</strong>
+
+      <!-- 부가 서비스 -->
+      <div class="quote-additional-section" id="previewAdditionalSection" style="display: none;">
+        <h3>부가 서비스 안내</h3>
+        <table class="quote-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>세부항목</th>
+              <th>수량</th>
+              <th>단위</th>
+              <th>단가</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="previewAdditionalItems">
+            <!-- JavaScript로 동적 생성 -->
+          </tbody>
+        </table>
       </div>
-      <div class="quote-row">
-        <span>월 이용료</span>
-        <strong id="previewMonthly">-</strong>
-      </div>
-      <div class="quote-row">
-        <span>이용 기간</span>
-        <strong id="previewMonths">-</strong>
-      </div>
-      <div class="quote-row">
-        <span>부가서비스</span>
-        <strong id="previewServices">-</strong>
-      </div>
-      <div class="quote-row total">
-        <span>년 계약총액</span>
-        <strong id="previewTotal">-</strong>
-      </div>
-      <div class="quote-row">
-        <span>계약금 (세팅비 + 부가서비스)</span>
-        <strong id="previewDeposit">-</strong>
+
+      <!-- 약관 및 안내 -->
+      <div class="quote-terms-section">
+        <h3>약관 및 안내사항</h3>
+        <div class="quote-terms-list">
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>과금시작:</strong> 계약서에 기재된 계약기간부터 과금시작되며, 첫달부터 세금계산서가 발행됩니다.</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>결제조건:</strong> 당월 사용료 당월 10일 이내 납부입니다.</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>기능개발:</strong> 계약체결시점 현재의 LMS기능을 사용하되, 커스터마이징 추가기능 개발은 별도비용이 발생하며, 검토 후 개발이 불가할 수 있습니다.</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>견적제외:</strong> 홈페이지 기본테마를 제외한 부가서비스는 별도 비용이 발생합니다.</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>결제정보:</strong> 신한은행 100-027-164841 예금주 (주)맑은소프트</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>견적담당:</strong> 양진환 팀장 | tel. 010-6207-2128 | e-mail. jhyang@malgnsoft.com</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>유효기간:</strong> 본 견적서의 유효 기간은 견적일자로부터 7일이며, 이후 가격정책 변경시행시 견적내용이 달라질 수 있습니다.</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -915,29 +1026,125 @@
     function generateQuoteInternal() {
       const plan = planData[lastCalculation.planKey];
       const companyName = companyNameInput?.value?.trim() || "-";
-      const services = [...lastCalculation.serviceNames];
-      if (lastCalculation.securitySelected) {
-        services.push("동영상 플레이어 보안 적용");
-      }
+      const usageMonths = lastCalculation.usageMonths || 0;
+      const monthlyFee = lastCalculation.monthlyFee || 0;
+      const contractTotal = lastCalculation.contractTotal || 0;
+      const depositTotal = lastCalculation.depositTotal || 0;
+      const serviceDetails = getSelectedServiceDetails();
+      const securitySelected = lastCalculation.securitySelected;
 
+      // 견적 정보 채우기
+      const quoteNameEl = document.getElementById("previewQuoteName");
+      const quoteDateEl = document.getElementById("previewQuoteDate");
+      const contractTotalEl = document.getElementById("previewContractTotal");
+      const depositEl = document.getElementById("previewDeposit");
+      
+      if (quoteNameEl) quoteNameEl.textContent = plan ? `맑은이러닝 / [${plan.name}]` : "-";
+      if (quoteDateEl) quoteDateEl.textContent = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
+      if (contractTotalEl) contractTotalEl.textContent = contractTotal ? `${formatCurrency(contractTotal)} (VAT 별도)` : "-";
+      if (depositEl) depositEl.textContent = depositTotal ? `${formatCurrency(depositTotal)} (VAT 별도)` : "-";
+
+      // 고객 정보 채우기
       previewCompany.textContent = companyName;
-      previewPlan.textContent = plan ? plan.name : "-";
       previewContact.textContent = contactInfo.name || "-";
       previewEmail.textContent = contactInfo.email || "-";
       previewPhone.textContent = contactInfo.phone || "-";
-      previewMonthly.textContent = lastCalculation.monthlyFee
-        ? `${formatCurrency(lastCalculation.monthlyFee)} / 월 (VAT 별도)`
-        : "-";
-      previewMonths.textContent = lastCalculation.usageMonths
-        ? `${lastCalculation.usageMonths}개월`
-        : "-";
-      previewServices.textContent = services.length ? services.join(", ") : "선택 없음";
-      previewTotal.textContent = lastCalculation.contractTotal
-        ? `${formatCurrency(lastCalculation.contractTotal)} (VAT 별도)`
-        : "-";
-      previewDeposit.textContent = lastCalculation.depositTotal
-        ? `${formatCurrency(lastCalculation.depositTotal)} (VAT 별도)`
-        : "-";
+
+      // 기본 항목 테이블 생성
+      const basicItemsTbody = document.getElementById("previewBasicItems");
+      if (basicItemsTbody) {
+        basicItemsTbody.innerHTML = "";
+        
+        // LMS 서비스
+        if (plan && !plan.customInquiry) {
+          const lmsRow = document.createElement("tr");
+          lmsRow.innerHTML = `
+            <td rowspan="2">LMS 서비스</td>
+            <td>S/W: ${plan.name} 클라우드 학습관리시스템</td>
+            <td>${usageMonths}</td>
+            <td>월</td>
+            <td>${formatCurrency(plan.price)}</td>
+            <td>${formatCurrency(plan.price * usageMonths)}</td>
+            <td>솔루션 기본 포함 서비스</td>
+          `;
+          basicItemsTbody.appendChild(lmsRow);
+
+          const hwRow = document.createElement("tr");
+          hwRow.innerHTML = `
+            <td>H/W: 클라우드 서버 제공 (저장공간: ${plan.storage}, 전송량: ${plan.bandwidth})</td>
+            <td>${usageMonths}</td>
+            <td>월</td>
+            <td>포함</td>
+            <td>포함</td>
+            <td>서버HW운영 및 기본하자보수</td>
+          `;
+          basicItemsTbody.appendChild(hwRow);
+        }
+
+        // 동영상 플레이어 보안 적용
+        if (securitySelected) {
+          const securityRow = document.createElement("tr");
+          securityRow.innerHTML = `
+            <td>동영상 서비스</td>
+            <td>보안 플레이어 (동영상 녹화 차단, DRM 적용)</td>
+            <td>${usageMonths}</td>
+            <td>월</td>
+            <td>${formatCurrency(SECURE_VIDEO_MONTHLY)}</td>
+            <td>${formatCurrency(SECURE_VIDEO_MONTHLY * usageMonths)}</td>
+            <td>기기대수 제한, 모바일 다운로드(선택기능)</td>
+          `;
+          basicItemsTbody.appendChild(securityRow);
+        }
+
+        // 세팅비
+        const setupRow = document.createElement("tr");
+        setupRow.innerHTML = `
+          <td>세팅비</td>
+          <td>서버 및 기본 솔루션 세팅, 단일 도메인 - SSL 보안 처리</td>
+          <td>1</td>
+          <td>회</td>
+          <td>${formatCurrency(SETUP_FEE)}</td>
+          <td>${formatCurrency(SETUP_FEE)}</td>
+          <td>1회성 비용</td>
+        `;
+        basicItemsTbody.appendChild(setupRow);
+      }
+
+      // 합계 행 업데이트
+      const totalAmountEl = document.getElementById("previewTotalAmount");
+      const monthlyAmountEl = document.getElementById("previewMonthlyAmount");
+      const depositAmountEl = document.getElementById("previewDepositAmount");
+      
+      if (totalAmountEl) totalAmountEl.textContent = contractTotal ? formatCurrency(contractTotal) : "-";
+      if (monthlyAmountEl) monthlyAmountEl.textContent = monthlyFee ? formatCurrency(monthlyFee) : "-";
+      if (depositAmountEl) depositAmountEl.textContent = depositTotal ? formatCurrency(depositTotal) : "-";
+
+      // 부가 서비스 테이블 생성
+      const additionalSection = document.getElementById("previewAdditionalSection");
+      const additionalItemsTbody = document.getElementById("previewAdditionalItems");
+      
+      if (serviceDetails.length > 0 && additionalItemsTbody) {
+        additionalSection.style.display = "block";
+        additionalItemsTbody.innerHTML = "";
+        
+        serviceDetails.forEach(service => {
+          if (service.price > 0) {
+            const row = document.createElement("tr");
+            const isMonthly = service.title.includes("보안") || service.title.includes("플레이어");
+            row.innerHTML = `
+              <td>부가서비스</td>
+              <td>${service.title}</td>
+              <td>${isMonthly ? usageMonths : 1}</td>
+              <td>${isMonthly ? "월" : "회"}</td>
+              <td>${formatCurrency(service.price)}</td>
+              <td>${isMonthly ? `월 ${formatCurrency(service.price)}` : "1회성 비용"}</td>
+            `;
+            additionalItemsTbody.appendChild(row);
+          }
+        });
+      } else {
+        if (additionalSection) additionalSection.style.display = "none";
+      }
 
       quotePreview.hidden = false;
       printButton.disabled = false;
@@ -959,13 +1166,74 @@
       if (!printWindow) return;
       const styles = `
         <style>
-          body { font-family: "Noto Sans KR", "Segoe UI", sans-serif; margin: 32px; }
-          h2 { margin-top: 0; }
-          .quote-card { border: 1px solid #d1d5db; border-radius: 12px; padding: 24px; }
-          .quote-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
-          .quote-row span { font-weight: 600; color: #374151; }
-          .quote-row strong { font-size: 1rem; }
-          .quote-row.total { font-size: 1.1rem; }
+          @media print {
+            @page { margin: 20mm; }
+            body { margin: 0; }
+          }
+          body { 
+            font-family: "Noto Sans KR", "Segoe UI", sans-serif; 
+            margin: 0;
+            padding: 20px;
+            color: #1a1a1a;
+          }
+          .quote-document {
+            max-width: 100%;
+            background: #ffffff;
+          }
+          .quote-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+          }
+          .quote-company-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            color: #667eea;
+          }
+          .quote-title h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+          }
+          .quote-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.85rem;
+          }
+          .quote-table th,
+          .quote-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+          }
+          .quote-table thead {
+            background: #667eea;
+            color: #fff;
+          }
+          .quote-table tfoot {
+            background: #f8f9fa;
+            font-weight: 700;
+          }
+          .quote-info-grid,
+          .quote-customer-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 16px 0;
+          }
+          .quote-terms-list {
+            margin-top: 20px;
+          }
+          .quote-term-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+          }
         </style>
       `;
       printWindow.document.write(`

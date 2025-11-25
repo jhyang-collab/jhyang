@@ -481,58 +481,266 @@ input[type="text"][readonly][data-value] {
 }
 
 .quote-preview {
-  max-width: 1000px;
-  margin: 40px auto 0;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
 }
 
-.quote-preview h2 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 24px;
-  text-align: center;
+.quote-document {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e8e8e8;
 }
 
-.quote-card {
-  border: 2px solid #e8e8e8;
-  border-radius: 16px;
-  padding: 32px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.quote-row {
+/* 견적서 헤더 */
+.quote-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid #e8e8e8;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 3px solid #667eea;
+}
+
+.quote-company-info {
+  flex: 1;
+}
+
+.quote-company-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.quote-company-details {
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.8;
+}
+
+.quote-company-details p {
+  margin: 4px 0;
+}
+
+.quote-title {
+  text-align: right;
+}
+
+.quote-title h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+/* 견적 정보 섹션 */
+.quote-info-section {
+  margin-bottom: 32px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 10px;
+  border: 2px solid #e8e8e8;
+}
+
+.quote-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-.quote-row:last-child {
+.quote-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quote-info-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.quote-info-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* 고객 정보 섹션 */
+.quote-customer-section {
+  margin-bottom: 32px;
+}
+
+.quote-customer-section h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #667eea;
+}
+
+.quote-customer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.quote-customer-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e8e8e8;
+}
+
+.quote-customer-item span {
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.quote-customer-item strong {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* 기본 항목 및 부가 서비스 섹션 */
+.quote-items-section,
+.quote-additional-section {
+  margin-bottom: 32px;
+}
+
+.quote-items-section h3,
+.quote-additional-section h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #667eea;
+}
+
+.quote-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: #ffffff;
+  border: 2px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.quote-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+}
+
+.quote-table th {
+  padding: 14px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.quote-table th:last-child {
+  border-right: none;
+}
+
+.quote-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e8e8e8;
+  border-right: 1px solid #e8e8e8;
+  font-size: 0.9rem;
+}
+
+.quote-table td:last-child {
+  border-right: none;
+}
+
+.quote-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.quote-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.quote-row span {
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.quote-row.total {
-  font-size: 1.2rem;
+.quote-table tfoot {
+  background: #f8f9fa;
   font-weight: 700;
-  padding: 20px 0;
-  border-top: 3px solid #667eea;
-  border-bottom: 3px solid #667eea;
-  margin-top: 8px;
-  color: #667eea;
 }
 
-.quote-row strong {
+.quote-summary-row td {
+  padding: 16px 12px;
+  border-top: 2px solid #667eea;
+}
+
+.quote-summary-label {
   text-align: right;
   color: #1a1a1a;
-  font-weight: 600;
+}
+
+.quote-summary-value {
+  text-align: right;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+/* 약관 섹션 */
+.quote-terms-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid #e8e8e8;
+}
+
+.quote-terms-section h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #667eea;
+}
+
+.quote-terms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quote-term-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.quote-term-checkbox {
+  font-size: 1.2rem;
+  color: #667eea;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.quote-term-text {
+  font-size: 0.9rem;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.quote-term-text strong {
+  color: #1a1a1a;
+  font-weight: 700;
 }
 
 .checkbox-group {
