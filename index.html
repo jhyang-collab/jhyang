@@ -59,6 +59,9 @@
         <option value="memberStandard">회원수 무제한형 (M-스탠다드)</option>
         <option value="trafficProfessional">트래픽 무제한형 (T-프로페셔널)</option>
         <option value="memberProfessional">회원수 무제한형 (M-프로페셔널)</option>
+        <option value="enterprise">엔터프라이즈 (별도문의)</option>
+        <option value="refundStandard">환급 LMS 스탠다드 (별도문의)</option>
+        <option value="refundProfessional">환급 LMS 프로페셔널 (별도문의)</option>
       </select>
       <div class="plan-grid">
         <article id="planSummary" class="plan-summary" aria-live="polite"></article>
@@ -413,6 +416,57 @@
           "미리캔버스 · 정기 구독 · 포인트 기능 포함",
           "실시간 라이브 강의 · 학습 전용 APP 제공"
         ]
+      },
+      enterprise: {
+        key: "enterprise",
+        name: "엔터프라이즈",
+        subtitle: "맞춤형 엔터프라이즈 솔루션",
+        price: 0,
+        priceSuffix: "별도문의",
+        storage: "맞춤형",
+        bandwidth: "맞춤형",
+        notes: [
+          "대규모 기업 및 공공기관을 위한 맞춤형 솔루션",
+          "전담 기술지원 및 커스터마이징 제공",
+          "고급 보안 및 인증 기능",
+          "전용 서버 및 인프라 구성 가능",
+          "상세한 견적은 별도 문의 필요"
+        ],
+        customInquiry: true
+      },
+      refundStandard: {
+        key: "refundStandard",
+        name: "환급 LMS 스탠다드",
+        subtitle: "공공 클라우드 LMS",
+        price: 0,
+        priceSuffix: "별도문의",
+        storage: "맞춤형",
+        bandwidth: "맞춤형",
+        notes: [
+          "CSAP 인증 공공 클라우드 LMS",
+          "국내 1위 SaaS형 클라우드 LMS 솔루션",
+          "안정성과 신뢰성 보장",
+          "공공서비스 제공에 최적화",
+          "상세한 견적은 별도 문의 필요"
+        ],
+        customInquiry: true
+      },
+      refundProfessional: {
+        key: "refundProfessional",
+        name: "환급 LMS 프로페셔널",
+        subtitle: "공공 클라우드 LMS",
+        price: 0,
+        priceSuffix: "별도문의",
+        storage: "맞춤형",
+        bandwidth: "맞춤형",
+        notes: [
+          "CSAP 인증 공공 클라우드 LMS",
+          "국내 1위 SaaS형 클라우드 LMS 솔루션",
+          "고급 기능 및 전담 지원 제공",
+          "공공서비스 제공에 최적화",
+          "상세한 견적은 별도 문의 필요"
+        ],
+        customInquiry: true
       }
     };
 
@@ -621,7 +675,9 @@
     function renderPlan(planKey) {
       const plan = planData[planKey];
       if (!plan) return;
-      const priceText = `${formatCurrency(plan.price)} / ${plan.priceSuffix}`;
+      const priceText = plan.customInquiry 
+        ? "별도 문의" 
+        : `${formatCurrency(plan.price)} / ${plan.priceSuffix}`;
       planSummary.innerHTML = `
         <p class="plan-eyebrow">${plan.subtitle}</p>
         <h3>${plan.name}</h3>
@@ -629,6 +685,7 @@
         <ul>
           ${plan.notes.map(item => `<li>${item}</li>`).join("")}
         </ul>
+        ${plan.customInquiry ? '<p class="note" style="margin-top: 16px; color: #2563eb; font-weight: 600;">※ 상세한 견적은 consulting@malgnsoft.com으로 문의해 주세요.</p>' : ''}
       `;
       if (storageInput) storageInput.value = plan.storage;
       if (bandwidthInput) bandwidthInput.value = plan.bandwidth;
@@ -660,6 +717,38 @@
       const serviceTotal = serviceDetails.reduce((sum, item) => sum + item.price, 0);
       const usageMonths = getUsageMonths();
       const securityFee = securePlayerCheckbox && securePlayerCheckbox.checked ? SECURE_VIDEO_MONTHLY : 0;
+
+      // 별도문의 상품 처리
+      if (plan.customInquiry) {
+        if (planPriceDisplay) {
+          planPriceDisplay.textContent = "별도 문의";
+        }
+        if (securePriceDisplay) {
+          securePriceDisplay.textContent = securityFee
+            ? `${formatCurrency(securityFee)} / 월`
+            : "₩0 / 월";
+        }
+        if (monthlyFeeInput) {
+          monthlyFeeInput.value = "별도 문의";
+          monthlyFeeInput.setAttribute("data-value", 0);
+        }
+        if (monthlyFeeText) {
+          monthlyFeeText.textContent = "별도 문의";
+        }
+        if (contractTotalInput) {
+          contractTotalInput.value = "별도 문의";
+          contractTotalInput.setAttribute("data-value", 0);
+        }
+        if (contractTotalText) {
+          contractTotalText.textContent = "별도 문의";
+        }
+        if (depositInput) {
+          const formatted = depositTotal > 0 ? formatCurrency(depositTotal) : "별도 문의";
+          depositInput.value = formatted;
+          depositInput.setAttribute("data-value", depositTotal || 0);
+        }
+        return;
+      }
 
       if (planPriceDisplay) {
         planPriceDisplay.textContent = `${formatCurrency(plan.price)} / 월`;
