@@ -41,31 +41,18 @@
           <label for="depositAmount">계약금 (세팅비 + 부가서비스)</label>
           <input id="depositAmount" type="text" placeholder="자동 계산" readonly>
         </div>
+        <div id="overageStorageContainer" style="display: none;">
+          <label for="overageStorage">초과 저장공간 (1GB당)</label>
+          <input id="overageStorage" type="text" placeholder="자동 계산" readonly>
+        </div>
+        <div id="overageBandwidthContainer" style="display: none;">
+          <label for="overageBandwidth">초과 전송량 (1GB당)</label>
+          <input id="overageBandwidth" type="text" placeholder="자동 계산" readonly>
+        </div>
       </div>
       <div class="total-highlight" aria-live="polite">
         <span>월 이용료: <strong id="monthlyFeeText">₩0 / 월</strong></span>
         <span>년 계약총액: <strong id="contractTotalText">₩0</strong></span>
-      </div>
-      <div class="overage-info" id="overageInfo" style="display: none;">
-        <h4>초과 요금 안내 (1GB당)</h4>
-        <table class="overage-table">
-          <thead>
-            <tr>
-              <th>구분</th>
-              <th>초과 요금</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr id="overageStorageRow">
-              <td>저장공간</td>
-              <td id="overageStorage">-</td>
-            </tr>
-            <tr id="overageBandwidthRow">
-              <td>전송량</td>
-              <td id="overageBandwidth">-</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
       <p class="note vat-note">모든 비용은 VAT 미포함 기준입니다.</p>
     </fieldset>
@@ -555,15 +542,15 @@
         subtitle: "범용 클라우드 LMS",
         price: 1000000,
         priceSuffix: "월",
-        storage: "100GB",
-        bandwidth: "1,500GB/월",
+        storage: "200GB",
+        bandwidth: "2,000GB/월",
         overageStorage: 500,
         overageStorageDiscount: "50% 할인",
         overageBandwidth: 300,
         overageBandwidthDiscount: "40% 할인",
         notes: [
           "누적 회원수 무제한",
-          "동영상 월 전송량 1,500GB",
+          "동영상 월 전송량 2,000GB",
           "웹 트래픽 무제한 및 개인정보보호 제공",
           "미리캔버스 · 정기 구독 · 포인트 기능 포함",
           "실시간 라이브 강의 · 학습 전용 APP 제공"
@@ -963,9 +950,13 @@
           depositInput.setAttribute("data-value", depositTotal || 0);
         }
         // 별도문의 상품은 초과금 정보 숨김
-        const overageInfo = document.getElementById("overageInfo");
-        if (overageInfo) {
-          overageInfo.style.display = "none";
+        const overageStorageContainer = document.getElementById("overageStorageContainer");
+        const overageBandwidthContainer = document.getElementById("overageBandwidthContainer");
+        if (overageStorageContainer) {
+          overageStorageContainer.style.display = "none";
+        }
+        if (overageBandwidthContainer) {
+          overageBandwidthContainer.style.display = "none";
         }
         return;
       }
@@ -1015,65 +1006,59 @@
       }
 
       // 초과금 정보 표시
-      const overageInfo = document.getElementById("overageInfo");
-      const overageStorageRow = document.getElementById("overageStorageRow");
-      const overageBandwidthRow = document.getElementById("overageBandwidthRow");
-      const overageStorage = document.getElementById("overageStorage");
-      const overageBandwidth = document.getElementById("overageBandwidth");
+      const overageStorageContainer = document.getElementById("overageStorageContainer");
+      const overageBandwidthContainer = document.getElementById("overageBandwidthContainer");
+      const overageStorageInput = document.getElementById("overageStorage");
+      const overageBandwidthInput = document.getElementById("overageBandwidth");
 
-      if (overageInfo && plan.overageStorage !== undefined && plan.overageBandwidth !== undefined) {
-        if (plan.overageStorage !== null || plan.overageBandwidth !== null) {
-          overageInfo.style.display = "block";
-
-          // 저장공간 초과금
-          if (plan.overageStorage !== null) {
-            let storageText = formatCurrency(plan.overageStorage);
-            if (plan.overageStorageDiscount) {
-              storageText += ` <span style="color: #ef4444; font-weight: 600;">(${plan.overageStorageDiscount})</span>`;
-            }
-            if (overageStorage) {
-              overageStorage.innerHTML = storageText;
-            }
-            if (overageStorageRow) {
-              overageStorageRow.style.display = "";
-            }
-          } else {
-            if (overageStorage) {
-              overageStorage.textContent = "별도 문의";
-            }
-            if (overageStorageRow) {
-              overageStorageRow.style.display = "";
-            }
+      // 저장공간 초과금
+      if (plan.overageStorage !== undefined && plan.overageStorage !== null) {
+        if (overageStorageContainer) {
+          overageStorageContainer.style.display = "";
+        }
+        if (overageStorageInput) {
+          let storageText = formatCurrency(plan.overageStorage);
+          if (plan.overageStorageDiscount) {
+            storageText += ` (${plan.overageStorageDiscount})`;
           }
+          overageStorageInput.value = storageText;
+        }
+      } else if (plan.overageStorage === null && plan.customInquiry !== true) {
+        // 별도 문의가 아닌 경우에만 표시
+        if (overageStorageContainer) {
+          overageStorageContainer.style.display = "none";
+        }
+      } else {
+        if (overageStorageContainer) {
+          overageStorageContainer.style.display = "none";
+        }
+      }
 
-          // 전송량 초과금
-          if (plan.overageBandwidth !== null) {
+      // 전송량 초과금
+      if (plan.overageBandwidth !== undefined) {
+        if (plan.overageBandwidth !== null) {
+          if (overageBandwidthContainer) {
+            overageBandwidthContainer.style.display = "";
+          }
+          if (overageBandwidthInput) {
             let bandwidthText = formatCurrency(plan.overageBandwidth);
             if (plan.overageBandwidthDiscount) {
-              bandwidthText += ` <span style="color: #ef4444; font-weight: 600;">(${plan.overageBandwidthDiscount})</span>`;
+              bandwidthText += ` (${plan.overageBandwidthDiscount})`;
             }
-            if (overageBandwidth) {
-              overageBandwidth.innerHTML = bandwidthText;
-            }
-            if (overageBandwidthRow) {
-              overageBandwidthRow.style.display = "";
-            }
-          } else {
-            if (overageBandwidth) {
-              overageBandwidth.textContent = "무제한";
-            }
-            if (overageBandwidthRow) {
-              overageBandwidthRow.style.display = "";
-            }
+            overageBandwidthInput.value = bandwidthText;
           }
         } else {
-          if (overageInfo) {
-            overageInfo.style.display = "none";
+          // 무제한
+          if (overageBandwidthContainer) {
+            overageBandwidthContainer.style.display = "";
+          }
+          if (overageBandwidthInput) {
+            overageBandwidthInput.value = "무제한";
           }
         }
       } else {
-        if (overageInfo) {
-          overageInfo.style.display = "none";
+        if (overageBandwidthContainer) {
+          overageBandwidthContainer.style.display = "none";
         }
       }
 
