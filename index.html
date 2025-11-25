@@ -239,7 +239,6 @@
     <div class="submit-row">
       <button type="button" id="generateQuote">임시 견적 생성</button>
       <button type="button" id="printQuote" disabled>PDF 출력</button>
-      <button type="button" id="excelQuote" disabled>Excel 출력</button>
     </div>
   </form>
 
@@ -706,7 +705,6 @@
     const serviceCheckboxes = Array.from(document.querySelectorAll("[data-service-price]"));
     const generateButton = document.getElementById("generateQuote");
     const printButton = document.getElementById("printQuote");
-    const excelButton = document.getElementById("excelQuote");
     const quotePreview = document.getElementById("quotePreview");
     const consentModal = document.getElementById("consentModal");
     const consentAgreeBtn = document.getElementById("consentAgree");
@@ -1251,7 +1249,6 @@
 
       quotePreview.hidden = false;
       printButton.disabled = false;
-      excelButton.disabled = false;
       
       sendEmail("임시 견적 생성");
     }
@@ -1270,72 +1267,209 @@
       const styles = `
         <style>
           @media print {
-            @page { margin: 20mm; }
-            body { margin: 0; }
+            @page { 
+              margin: 10mm;
+              size: A4;
+            }
+            body { 
+              margin: 0;
+              padding: 0;
+            }
+          }
+          * {
+            box-sizing: border-box;
           }
           body { 
             font-family: "Noto Sans KR", "Segoe UI", sans-serif; 
             margin: 0;
-            padding: 20px;
+            padding: 8px;
             color: #1a1a1a;
+            font-size: 10px;
+            line-height: 1.3;
           }
           .quote-document {
             max-width: 100%;
             background: #ffffff;
+            padding: 0;
           }
           .quote-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+          }
+          .quote-company-info {
+            flex: 1;
           }
           .quote-company-name {
-            font-size: 1.8rem;
+            font-size: 16px;
             font-weight: 700;
-            margin: 0 0 10px 0;
+            margin: 0 0 4px 0;
             color: #667eea;
           }
+          .quote-company-details {
+            font-size: 8px;
+            color: #6b7280;
+            line-height: 1.4;
+          }
+          .quote-company-details p {
+            margin: 2px 0;
+          }
           .quote-title h2 {
-            font-size: 2rem;
+            font-size: 20px;
             font-weight: 700;
             margin: 0;
+            color: #1a1a1a;
+          }
+          .quote-info-section {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e8e8e8;
+          }
+          .quote-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+          }
+          .quote-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .quote-info-label {
+            font-size: 8px;
+            color: #6b7280;
+            font-weight: 600;
+          }
+          .quote-info-value {
+            font-size: 10px;
+            font-weight: 700;
+            color: #1a1a1a;
+          }
+          .quote-customer-section {
+            margin-bottom: 10px;
+          }
+          .quote-customer-section h3,
+          .quote-items-section h3,
+          .quote-additional-section h3,
+          .quote-terms-section h3 {
+            font-size: 11px;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+            color: #1a1a1a;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #667eea;
+          }
+          .quote-customer-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+          }
+          .quote-customer-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 6px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            border: 1px solid #e8e8e8;
+            font-size: 9px;
+          }
+          .quote-customer-item span {
+            font-weight: 600;
+            color: #6b7280;
+          }
+          .quote-customer-item strong {
+            font-weight: 600;
+            color: #1a1a1a;
           }
           .quote-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 16px 0;
-            font-size: 0.85rem;
+            margin: 6px 0;
+            font-size: 8px;
           }
           .quote-table th,
           .quote-table td {
-            padding: 10px;
+            padding: 4px 6px;
             border: 1px solid #ddd;
             text-align: left;
+            line-height: 1.2;
           }
           .quote-table thead {
             background: #667eea;
             color: #fff;
           }
+          .quote-table thead th {
+            font-size: 8px;
+            font-weight: 700;
+            padding: 5px 6px;
+          }
+          .quote-table tbody td {
+            font-size: 8px;
+          }
           .quote-table tfoot {
             background: #f8f9fa;
             font-weight: 700;
           }
-          .quote-info-grid,
-          .quote-customer-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin: 16px 0;
+          .quote-summary-row td {
+            padding: 5px 6px;
+            border-top: 2px solid #667eea;
+            font-size: 9px;
+          }
+          .quote-summary-label {
+            text-align: right;
+            color: #1a1a1a;
+          }
+          .quote-summary-value {
+            text-align: right;
+            color: #667eea;
+            font-size: 10px;
+          }
+          .quote-additional-section {
+            margin-bottom: 10px;
+          }
+          .quote-terms-section {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e8e8;
+          }
+          .quote-terms-section h3 {
+            font-size: 11px;
+            margin-bottom: 6px;
           }
           .quote-terms-list {
-            margin-top: 20px;
+            margin: 0;
+            padding: 0;
           }
           .quote-term-item {
-            margin-bottom: 12px;
-            padding: 10px;
+            margin-bottom: 4px;
+            padding: 4px 6px;
             background: #f8f9fa;
-            border-left: 4px solid #667eea;
+            border-radius: 3px;
+            border-left: 3px solid #667eea;
+            display: flex;
+            gap: 6px;
+            font-size: 8px;
+            line-height: 1.3;
+          }
+          .quote-term-checkbox {
+            font-size: 10px;
+            color: #667eea;
+            font-weight: 700;
+            flex-shrink: 0;
+          }
+          .quote-term-text {
+            font-size: 8px;
+            color: #374151;
+            line-height: 1.3;
+          }
+          .quote-term-text strong {
+            color: #1a1a1a;
+            font-weight: 700;
           }
         </style>
       `;
@@ -1476,9 +1610,6 @@
       printButton.addEventListener("click", openPrintWindow);
     }
 
-    if (excelButton) {
-      excelButton.addEventListener("click", exportToExcel);
-    }
 
     renderPlan(cloudPlanSelect.value);
   </script>
