@@ -46,6 +46,27 @@
         <span>월 이용료: <strong id="monthlyFeeText">₩0 / 월</strong></span>
         <span>년 계약총액: <strong id="contractTotalText">₩0</strong></span>
       </div>
+      <div class="overage-info" id="overageInfo" style="display: none;">
+        <h4>초과 요금 안내 (1GB당)</h4>
+        <table class="overage-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>초과 요금</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="overageStorageRow">
+              <td>저장공간</td>
+              <td id="overageStorage">-</td>
+            </tr>
+            <tr id="overageBandwidthRow">
+              <td>전송량</td>
+              <td id="overageBandwidth">-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <p class="note vat-note">모든 비용은 VAT 미포함 기준입니다.</p>
     </fieldset>
 
@@ -447,6 +468,8 @@
         priceSuffix: "월",
         storage: "100GB",
         bandwidth: "무제한",
+        overageStorage: 1000,
+        overageBandwidth: null, // 무제한
         notes: [
           "동영상 월 전송량·웹 트래픽 무제한",
           "누적 회원수 2,000명",
@@ -462,6 +485,8 @@
         priceSuffix: "월",
         storage: "50GB",
         bandwidth: "500GB/월",
+        overageStorage: 1000,
+        overageBandwidth: 500,
         notes: [
           "누적 회원수 무제한",
           "동영상 월 전송량 500GB",
@@ -477,6 +502,9 @@
         priceSuffix: "월",
         storage: "150GB",
         bandwidth: "무제한",
+        overageStorage: 700,
+        overageStorageDiscount: "30% 할인",
+        overageBandwidth: null, // 무제한
         notes: [
           "동영상·웹 트래픽 무제한 (고급 SLA)",
           "누적 회원수 3,000명",
@@ -492,6 +520,9 @@
         priceSuffix: "월",
         storage: "100GB",
         bandwidth: "1,000GB/월",
+        overageStorage: 700,
+        overageStorageDiscount: "30% 할인",
+        overageBandwidth: 500,
         notes: [
           "누적 회원수 무제한 (고급 분석 포함)",
           "동영상 월 전송량 1,000GB",
@@ -507,6 +538,9 @@
         priceSuffix: "월",
         storage: "200GB",
         bandwidth: "무제한",
+        overageStorage: 500,
+        overageStorageDiscount: "50% 할인",
+        overageBandwidth: null, // 무제한
         notes: [
           "동영상 월 전송량·웹 트래픽 무제한",
           "누적 회원수 5,000명",
@@ -523,6 +557,10 @@
         priceSuffix: "월",
         storage: "100GB",
         bandwidth: "1,500GB/월",
+        overageStorage: 500,
+        overageStorageDiscount: "50% 할인",
+        overageBandwidth: 300,
+        overageBandwidthDiscount: "40% 할인",
         notes: [
           "누적 회원수 무제한",
           "동영상 월 전송량 1,500GB",
@@ -539,6 +577,8 @@
         priceSuffix: "별도문의",
         storage: "맞춤형",
         bandwidth: "맞춤형",
+        overageStorage: null,
+        overageBandwidth: null,
         notes: [
           "대규모 기업 및 공공기관을 위한 맞춤형 솔루션",
           "전담 기술지원 및 커스터마이징 제공",
@@ -556,6 +596,8 @@
         priceSuffix: "월",
         storage: "300GB",
         bandwidth: "2,000GB/월",
+        overageStorage: null,
+        overageBandwidth: null,
         notes: [
           "CSAP 인증 공공 클라우드 LMS",
           "저장공간 300GB (약 500시간 동영상 업로드 가능)",
@@ -573,6 +615,8 @@
         priceSuffix: "월",
         storage: "400GB",
         bandwidth: "3,000GB/월",
+        overageStorage: null,
+        overageBandwidth: null,
         notes: [
           "CSAP 인증 공공 클라우드 LMS",
           "저장공간 400GB (약 666시간 동영상 업로드 가능)",
@@ -590,6 +634,8 @@
         priceSuffix: "월",
         storage: "500GB",
         bandwidth: "5,000GB/월",
+        overageStorage: null,
+        overageBandwidth: null,
         notes: [
           "CSAP 인증 공공 클라우드 LMS",
           "저장공간 500GB (약 833시간 동영상 업로드 가능)",
@@ -607,6 +653,8 @@
         priceSuffix: "별도문의",
         storage: "맞춤형",
         bandwidth: "맞춤형",
+        overageStorage: null,
+        overageBandwidth: null,
         notes: [
           "CSAP 인증 환급 클라우드 LMS",
           "국내 1위 SaaS형 클라우드 LMS 솔루션",
@@ -624,6 +672,8 @@
         priceSuffix: "별도문의",
         storage: "맞춤형",
         bandwidth: "맞춤형",
+        overageStorage: null,
+        overageBandwidth: null,
         notes: [
           "CSAP 인증 환급 클라우드 LMS",
           "국내 1위 SaaS형 클라우드 LMS 솔루션",
@@ -912,6 +962,11 @@
           depositInput.value = formatted;
           depositInput.setAttribute("data-value", depositTotal || 0);
         }
+        // 별도문의 상품은 초과금 정보 숨김
+        const overageInfo = document.getElementById("overageInfo");
+        if (overageInfo) {
+          overageInfo.style.display = "none";
+        }
         return;
       }
 
@@ -957,6 +1012,69 @@
         const formatted = depositTotal ? formatCurrency(depositTotal) : "₩0";
         depositInput.value = formatted;
         depositInput.setAttribute("data-value", depositTotal || 0);
+      }
+
+      // 초과금 정보 표시
+      const overageInfo = document.getElementById("overageInfo");
+      const overageStorageRow = document.getElementById("overageStorageRow");
+      const overageBandwidthRow = document.getElementById("overageBandwidthRow");
+      const overageStorage = document.getElementById("overageStorage");
+      const overageBandwidth = document.getElementById("overageBandwidth");
+
+      if (overageInfo && plan.overageStorage !== undefined && plan.overageBandwidth !== undefined) {
+        if (plan.overageStorage !== null || plan.overageBandwidth !== null) {
+          overageInfo.style.display = "block";
+
+          // 저장공간 초과금
+          if (plan.overageStorage !== null) {
+            let storageText = formatCurrency(plan.overageStorage);
+            if (plan.overageStorageDiscount) {
+              storageText += ` <span style="color: #ef4444; font-weight: 600;">(${plan.overageStorageDiscount})</span>`;
+            }
+            if (overageStorage) {
+              overageStorage.innerHTML = storageText;
+            }
+            if (overageStorageRow) {
+              overageStorageRow.style.display = "";
+            }
+          } else {
+            if (overageStorage) {
+              overageStorage.textContent = "별도 문의";
+            }
+            if (overageStorageRow) {
+              overageStorageRow.style.display = "";
+            }
+          }
+
+          // 전송량 초과금
+          if (plan.overageBandwidth !== null) {
+            let bandwidthText = formatCurrency(plan.overageBandwidth);
+            if (plan.overageBandwidthDiscount) {
+              bandwidthText += ` <span style="color: #ef4444; font-weight: 600;">(${plan.overageBandwidthDiscount})</span>`;
+            }
+            if (overageBandwidth) {
+              overageBandwidth.innerHTML = bandwidthText;
+            }
+            if (overageBandwidthRow) {
+              overageBandwidthRow.style.display = "";
+            }
+          } else {
+            if (overageBandwidth) {
+              overageBandwidth.textContent = "무제한";
+            }
+            if (overageBandwidthRow) {
+              overageBandwidthRow.style.display = "";
+            }
+          }
+        } else {
+          if (overageInfo) {
+            overageInfo.style.display = "none";
+          }
+        }
+      } else {
+        if (overageInfo) {
+          overageInfo.style.display = "none";
+        }
       }
 
       lastCalculation = {
