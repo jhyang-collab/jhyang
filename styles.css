@@ -61,32 +61,20 @@ select {
   box-sizing: border-box;
 }
 
-input[type="number"][readonly] {
+input[type="number"][readonly],
+input[type="text"][readonly] {
   text-align: right;
   font-weight: 600;
-  color: #111827;
+  color: #111827 !important;
+  background-color: #fff !important;
   position: relative;
 }
 
-input[type="number"][readonly][data-formatted] {
-  color: transparent !important;
-  position: relative;
-}
-
-input[type="number"][readonly][data-formatted]::after {
-  content: attr(data-formatted);
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
+/* 금액 표시용 text input 필드 스타일 */
+input[type="text"][readonly][data-value] {
   color: #111827 !important;
   font-weight: 600;
-  background-color: #fff;
-  padding: 0 4px;
-  z-index: 100;
-  white-space: nowrap;
-  display: block;
+  background-color: #fff !important;
 }
 
 .btn-secondary {

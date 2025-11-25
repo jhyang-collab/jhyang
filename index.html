@@ -27,7 +27,7 @@
       <div class="two-column">
         <div>
           <label for="monthlyFee">월 이용료 (상품 기준)</label>
-          <input id="monthlyFee" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
+          <input id="monthlyFee" type="text" placeholder="자동 계산" readonly>
         </div>
         <div>
           <label for="usageMonths">이용 개월 수</label>
@@ -35,11 +35,11 @@
         </div>
         <div>
           <label for="contractTotal">년 계약총액</label>
-          <input id="contractTotal" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
+          <input id="contractTotal" type="text" placeholder="자동 계산" readonly>
         </div>
         <div>
           <label for="depositAmount">계약금 (세팅비 + 부가서비스)</label>
-          <input id="depositAmount" type="number" min="0" step="1000" placeholder="자동 계산" readonly>
+          <input id="depositAmount" type="text" placeholder="자동 계산" readonly>
         </div>
       </div>
       <div class="total-highlight" aria-live="polite">
@@ -679,10 +679,8 @@
 
       if (monthlyFeeInput) {
         const formatted = monthlyTotal ? formatCurrency(monthlyTotal) : "₩0";
-        monthlyFeeInput.value = monthlyTotal || "";
-        monthlyFeeInput.setAttribute("data-formatted", formatted);
-        // input 필드에 직접 표시하기 위해 placeholder 사용
-        monthlyFeeInput.placeholder = formatted;
+        monthlyFeeInput.value = formatted;
+        monthlyFeeInput.setAttribute("data-value", monthlyTotal || 0);
       }
 
       if (monthlyFeeText) {
@@ -691,9 +689,8 @@
 
       if (contractTotalInput) {
         const formatted = contractTotal ? formatCurrency(contractTotal) : "₩0";
-        contractTotalInput.value = contractTotal || "";
-        contractTotalInput.setAttribute("data-formatted", formatted);
-        contractTotalInput.placeholder = formatted;
+        contractTotalInput.value = formatted;
+        contractTotalInput.setAttribute("data-value", contractTotal || 0);
       }
 
       if (contractTotalText) {
@@ -704,9 +701,8 @@
 
       if (depositInput) {
         const formatted = depositTotal ? formatCurrency(depositTotal) : "₩0";
-        depositInput.value = depositTotal || "";
-        depositInput.setAttribute("data-formatted", formatted);
-        depositInput.placeholder = formatted;
+        depositInput.value = formatted;
+        depositInput.setAttribute("data-value", depositTotal || 0);
       }
 
       lastCalculation = {
