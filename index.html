@@ -60,9 +60,11 @@
         <option value="trafficProfessional">트래픽 무제한형 (T-프로페셔널)</option>
         <option value="memberProfessional">회원수 무제한형 (M-프로페셔널)</option>
         <option value="enterprise">엔터프라이즈 (별도문의)</option>
-        <option value="refundLight">환급 LMS 라이트</option>
-        <option value="refundStandard">환급 LMS 스탠다드</option>
-        <option value="refundProfessional">환급 LMS 프로페셔널</option>
+        <option value="publicLight">공공 LMS 라이트</option>
+        <option value="publicStandard">공공 LMS 스탠다드</option>
+        <option value="publicProfessional">공공 LMS 프로페셔널</option>
+        <option value="refundStandard">환급 LMS 스탠다드 (별도문의)</option>
+        <option value="refundProfessional">환급 LMS 프로페셔널 (별도문의)</option>
       </select>
       <div class="plan-grid">
         <article id="planSummary" class="plan-summary" aria-live="polite"></article>
@@ -435,9 +437,9 @@
         ],
         customInquiry: true
       },
-      refundLight: {
-        key: "refundLight",
-        name: "환급 LMS 라이트",
+      publicLight: {
+        key: "publicLight",
+        name: "공공 LMS 라이트",
         subtitle: "공공 클라우드 LMS",
         price: 2000000,
         priceSuffix: "월",
@@ -452,9 +454,9 @@
         ],
         customInquiry: false
       },
-      refundStandard: {
-        key: "refundStandard",
-        name: "환급 LMS 스탠다드",
+      publicStandard: {
+        key: "publicStandard",
+        name: "공공 LMS 스탠다드",
         subtitle: "공공 클라우드 LMS",
         price: 2500000,
         priceSuffix: "월",
@@ -469,9 +471,9 @@
         ],
         customInquiry: false
       },
-      refundProfessional: {
-        key: "refundProfessional",
-        name: "환급 LMS 프로페셔널",
+      publicProfessional: {
+        key: "publicProfessional",
+        name: "공공 LMS 프로페셔널",
         subtitle: "공공 클라우드 LMS",
         price: 3200000,
         priceSuffix: "월",
@@ -485,6 +487,40 @@
           "부가서비스 포함 (신용카드 결제, 수료증 발급, SSO 연동, API 연동)"
         ],
         customInquiry: false
+      },
+      refundStandard: {
+        key: "refundStandard",
+        name: "환급 LMS 스탠다드",
+        subtitle: "환급 클라우드 LMS",
+        price: 0,
+        priceSuffix: "별도문의",
+        storage: "맞춤형",
+        bandwidth: "맞춤형",
+        notes: [
+          "CSAP 인증 환급 클라우드 LMS",
+          "국내 1위 SaaS형 클라우드 LMS 솔루션",
+          "안정성과 신뢰성 보장",
+          "환급 서비스 제공에 최적화",
+          "상세한 견적은 별도 문의 필요"
+        ],
+        customInquiry: true
+      },
+      refundProfessional: {
+        key: "refundProfessional",
+        name: "환급 LMS 프로페셔널",
+        subtitle: "환급 클라우드 LMS",
+        price: 0,
+        priceSuffix: "별도문의",
+        storage: "맞춤형",
+        bandwidth: "맞춤형",
+        notes: [
+          "CSAP 인증 환급 클라우드 LMS",
+          "국내 1위 SaaS형 클라우드 LMS 솔루션",
+          "고급 기능 및 전담 지원 제공",
+          "환급 서비스 제공에 최적화",
+          "상세한 견적은 별도 문의 필요"
+        ],
+        customInquiry: true
       }
     };
 
