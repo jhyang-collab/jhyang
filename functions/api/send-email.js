@@ -18,9 +18,20 @@ export async function onRequestPost(context) {
     // Resend API를 사용한 이메일 전송
     const RESEND_API_KEY = env.RESEND_API_KEY;
     
+    // 디버깅: 환경 변수 확인 (프로덕션에서는 제거 가능)
+    console.log('Environment check:', {
+      hasEnv: !!env,
+      hasResendKey: !!RESEND_API_KEY,
+      envKeys: env ? Object.keys(env) : []
+    });
+    
     if (!RESEND_API_KEY) {
       return new Response(
-        JSON.stringify({ error: 'Resend API key not configured' }), 
+        JSON.stringify({ 
+          error: 'Resend API key not configured',
+          message: 'Cloudflare Pages에서 환경 변수 RESEND_API_KEY를 설정해주세요.',
+          hint: 'Settings > Environment variables에서 Production 환경에 RESEND_API_KEY를 추가하세요.'
+        }), 
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

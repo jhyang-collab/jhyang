@@ -18,7 +18,29 @@ Cloudflare Email Routing을 사용하여 `consulting@malgnsoft.com`으로 받는
 2. 도메인 추가 및 확인
 3. 받는 주소 규칙 설정 (consulting@malgnsoft.com)
 
-### 3. Cloudflare Workers 배포
+### 3. Cloudflare Pages Functions 환경 변수 설정
+
+**중요:** Pages Functions를 사용하는 경우, 환경 변수를 Pages 프로젝트 설정에서 추가해야 합니다.
+
+1. Cloudflare 대시보드에서 **Pages** → **jhyang** 프로젝트 선택
+2. **Settings** 탭 클릭
+3. **Environment variables** 섹션으로 스크롤
+4. **Add variable** 버튼 클릭
+5. 다음 정보 입력:
+   - **Variable name:** `RESEND_API_KEY`
+   - **Value:** Resend에서 받은 API 키
+   - **Environment:** **Production** 선택 (필수!)
+6. **Save** 클릭
+7. **Deployments** 탭으로 이동하여 최신 배포를 다시 배포하거나, 새로운 커밋을 푸시하여 재배포
+
+**⚠️ 주의사항:**
+- 환경 변수는 **Production** 환경에 반드시 설정해야 합니다
+- 환경 변수 추가 후 **재배포**가 필요합니다
+- 배포가 완료되면 `https://jhyang.pages.dev/api/send-email` 엔드포인트가 환경 변수를 읽을 수 있습니다
+
+### 4. (선택사항) Cloudflare Workers 배포
+
+Workers를 별도로 사용하려면:
 
 1. Cloudflare 대시보드에서 Workers & Pages로 이동
 2. 새 Worker 생성
@@ -28,14 +50,7 @@ Cloudflare Email Routing을 사용하여 `consulting@malgnsoft.com`으로 받는
    - Value: Resend에서 받은 API 키
 5. Worker 저장 및 배포
 6. 배포된 Worker의 URL 확인 (예: `https://send-email-api.your-subdomain.workers.dev`)
-
-### 4. index.html 업데이트
-
-`index.html` 파일에서 `API_ENDPOINT` 변수를 배포된 Worker URL로 변경:
-
-```javascript
-const API_ENDPOINT = "https://send-email-api.your-subdomain.workers.dev";
-```
+7. `index.html`의 `API_ENDPOINT`를 Worker URL로 변경
 
 ### 5. 테스트
 
