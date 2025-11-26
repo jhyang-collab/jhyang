@@ -1243,8 +1243,6 @@
 
       quotePreview.hidden = false;
       printButton.disabled = false;
-      
-      sendEmail("임시 견적 생성");
     }
 
     function openPrintWindow() {
@@ -1483,8 +1481,6 @@
       printWindow.document.close();
       printWindow.focus();
       printWindow.print();
-      
-      sendEmail("PDF 출력");
     }
 
     function exportToExcel() {
@@ -1536,10 +1532,9 @@
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
-      sendEmail("Excel 출력");
     }
 
+    // 이메일 전송 함수 (현재 사용하지 않음)
     async function sendEmail(action) {
       if (!quotePreview || quotePreview.hidden) return;
       
