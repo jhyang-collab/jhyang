@@ -1558,9 +1558,19 @@
       const subject = `[견적서 요청] ${previewCompany.textContent} - ${action}`;
       
       // Cloudflare Workers를 통한 이메일 자동 전송
-      // Workers 배포 후 엔드포인트를 업데이트하세요
-      // 예: https://send-email-api.your-subdomain.workers.dev
-      const API_ENDPOINT = "https://send-email-api.your-subdomain.workers.dev"; // Workers 엔드포인트로 변경 필요
+      // ⚠️ 중요: Workers 배포 후 아래 엔드포인트를 실제 Worker URL로 변경해야 합니다
+      // Cloudflare 대시보드 > Workers & Pages > 배포된 Worker의 URL을 복사하여 아래에 입력하세요
+      const API_ENDPOINT = "https://send-email-api.your-subdomain.workers.dev"; // ⚠️ 실제 Worker URL로 변경 필요
+      
+      // Workers가 배포되지 않은 경우 확인
+      if (API_ENDPOINT.includes("your-subdomain")) {
+        alert("⚠️ 이메일 전송 설정이 필요합니다.\n\nCloudflare Workers를 배포하고 index.html의 API_ENDPOINT를 실제 Worker URL로 변경해주세요.\n\n자세한 설정 방법은 EMAIL_SETUP.md 파일을 참고하세요.");
+        console.error("이메일 전송 실패: API_ENDPOINT가 설정되지 않았습니다.");
+        // mailto 링크로 대체
+        const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+        window.location.href = mailtoLink;
+        return;
+      }
       
       try {
         const emailData = {
@@ -1580,6 +1590,8 @@
           action: action
         };
 
+        console.log("이메일 전송 시도:", API_ENDPOINT);
+        
         const response = await fetch(API_ENDPOINT, {
           method: "POST",
           headers: {
@@ -1588,15 +1600,23 @@
           body: JSON.stringify(emailData)
         });
 
+        const responseData = await response.json();
+        console.log("서버 응답:", responseData);
+
         if (response.ok) {
           alert("이메일이 성공적으로 전송되었습니다.");
         } else {
-          throw new Error("서버 응답 오류");
+          const errorMessage = responseData.error || responseData.message || "서버 응답 오류";
+          console.error("이메일 전송 실패:", errorMessage);
+          alert(`이메일 전송에 실패했습니다.\n\n오류: ${errorMessage}\n\n브라우저 콘솔에서 자세한 정보를 확인하세요.`);
+          // mailto 링크로 대체
+          const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+          window.location.href = mailtoLink;
         }
       } catch (error) {
         console.error("이메일 전송 오류:", error);
-        // 서버 API가 없거나 오류 발생 시 mailto 링크 사용
-        // 이 경우 사용자가 이메일 클라이언트에서 직접 보내야 합니다
+        alert(`이메일 전송 중 오류가 발생했습니다.\n\n오류: ${error.message}\n\n브라우저 콘솔에서 자세한 정보를 확인하세요.`);
+        // mailto 링크로 대체
         const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
         window.location.href = mailtoLink;
       }
