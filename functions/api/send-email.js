@@ -47,10 +47,10 @@ export async function onRequestPost(context) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        // ⚠️ 중요: Resend에서 도메인 검증이 완료되면 아래 주소를 사용하세요
-        // from: '견적서 시스템 <noreply@malgnsoft.com>',
-        // 도메인 검증 전까지는 Resend 기본 발신자 주소 사용
-        from: '견적서 시스템 <onboarding@resend.dev>',
+        // ⚠️ 중요: Resend 무료 플랜에서는 도메인 검증이 필수입니다
+        // Resend 대시보드(https://resend.com/domains)에서 malgnsoft.com 도메인을 추가하고 검증하세요
+        // 검증 완료 후 아래 주소를 사용하세요:
+        from: '견적서 시스템 <noreply@malgnsoft.com>',
         to: 'consulting@malgnsoft.com',
         subject: emailData.subject || '견적서 요청',
         html: `
@@ -84,8 +84,18 @@ export async function onRequestPost(context) {
         }
       );
     } else {
+      // 도메인 검증 관련 오류인 경우 더 명확한 메시지 제공
+      let errorMessage = result.message || '이메일 전송 실패';
+      if (errorMessage.includes('domain') || errorMessage.includes('verify')) {
+        errorMessage = `도메인 검증이 필요합니다. Resend 대시보드(https://resend.com/domains)에서 malgnsoft.com 도메인을 추가하고 검증해주세요. 원본 오류: ${result.message}`;
+      }
+      
       return new Response(
-        JSON.stringify({ error: result.message || '이메일 전송 실패' }), 
+        JSON.stringify({ 
+          error: errorMessage,
+          details: result,
+          hint: 'Resend에서 도메인을 검증하면 이 오류가 해결됩니다. https://resend.com/domains 에서 malgnsoft.com을 추가하고 DNS 레코드를 설정하세요.'
+        }), 
         { 
           status: resendResponse.status, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

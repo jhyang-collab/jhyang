@@ -10,26 +10,33 @@
 2. API Keys 메뉴에서 새 API 키 생성
 3. 생성된 API 키 복사
 
-### 1-1. Resend 도메인 검증 (선택사항, 권장)
+### 1-1. Resend 도메인 검증 (필수)
 
-**⚠️ 중요:** `malgnsoft.com` 도메인을 사용하려면 Resend에서 도메인을 검증해야 합니다.
-
-**임시 해결책:** 도메인 검증 전까지는 Resend 기본 발신자 주소(`onboarding@resend.dev`)가 사용됩니다.
+**⚠️ 중요:** Resend 무료 플랜에서는 도메인 검증이 **필수**입니다. 도메인을 검증하지 않으면 다른 이메일 주소로 이메일을 보낼 수 없습니다.
 
 **도메인 검증 방법:**
-1. Resend 대시보드 → **Domains** 메뉴로 이동
-2. **Add Domain** 클릭
-3. `malgnsoft.com` 입력
-4. Resend에서 제공하는 DNS 레코드를 Cloudflare DNS에 추가:
-   - Cloudflare 대시보드 → DNS → Records
-   - Resend에서 제공한 TXT 레코드 추가 (예: `_resend.malgnsoft.com`)
-5. DNS 레코드 추가 후 Resend에서 **Verify** 클릭
-6. 검증 완료 후 `functions/api/send-email.js` 파일에서 발신자 주소를 변경:
-   ```javascript
-   from: '견적서 시스템 <noreply@malgnsoft.com>',
-   ```
+1. Resend 대시보드 접속: https://resend.com/domains
+2. **Add Domain** 버튼 클릭
+3. `malgnsoft.com` 입력 후 **Add** 클릭
+4. Resend에서 제공하는 DNS 레코드를 확인:
+   - 보통 TXT 레코드가 제공됩니다 (예: `_resend.malgnsoft.com`)
+5. Cloudflare DNS에 레코드 추가:
+   - Cloudflare 대시보드 → `malgnsoft.com` 도메인 선택
+   - **DNS** → **Records** 메뉴로 이동
+   - **Add record** 클릭
+   - Resend에서 제공한 레코드 정보 입력:
+     - Type: TXT (또는 Resend에서 지정한 타입)
+     - Name: `_resend` (또는 Resend에서 지정한 이름)
+     - Content: Resend에서 제공한 값
+   - **Save** 클릭
+6. DNS 레코드 추가 후 Resend 대시보드로 돌아가서 **Verify** 버튼 클릭
+7. 검증 완료까지 몇 분 소요될 수 있습니다 (최대 24시간)
+8. 검증 완료 후 자동으로 `noreply@malgnsoft.com`으로 이메일을 보낼 수 있습니다
 
-**참고:** 도메인 검증이 완료되면 `noreply@malgnsoft.com`으로 이메일을 보낼 수 있습니다.
+**참고:** 
+- 도메인 검증이 완료되면 코드 수정 없이 자동으로 작동합니다
+- 현재 코드는 이미 `noreply@malgnsoft.com`을 사용하도록 설정되어 있습니다
+- 검증이 완료되면 즉시 이메일 전송이 가능합니다
 
 ### 2. Cloudflare Email Routing 설정 (선택사항)
 
