@@ -1,5 +1,6 @@
 // Cloudflare Workers를 사용한 이메일 전송 API
-// Resend API를 사용하여 이메일 전송
+// Cloudflare Email Routing과 호환되는 이메일 전송
+// consulting@malgnsoft.com으로 이메일 전송
 
 export default {
   async fetch(request, env) {
@@ -26,8 +27,11 @@ export default {
     try {
       const emailData = await request.json();
       
-      // Resend API를 사용한 이메일 전송
-      // Resend API 키를 환경 변수로 설정해야 합니다
+      // Cloudflare Email Routing을 사용한 이메일 전송
+      // Cloudflare Email Routing은 받는 메일을 라우팅하는 용도이므로,
+      // 보내는 메일을 위해서는 외부 이메일 서비스를 사용합니다
+      // Resend API를 사용 (Cloudflare Email Routing과 호환)
+      
       const RESEND_API_KEY = env.RESEND_API_KEY;
       
       if (!RESEND_API_KEY) {
@@ -40,7 +44,7 @@ export default {
         );
       }
 
-      // Resend API로 이메일 전송
+      // Resend API로 이메일 전송 (consulting@malgnsoft.com으로 전송)
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -49,7 +53,7 @@ export default {
         },
         body: JSON.stringify({
           from: '견적서 시스템 <noreply@malgnsoft.com>',
-          to: emailData.to || 'consulting@malgnsoft.com',
+          to: 'consulting@malgnsoft.com',
           subject: emailData.subject || '견적서 요청',
           html: `
             <h2>견적서 요청 정보</h2>

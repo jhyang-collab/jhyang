@@ -1,6 +1,8 @@
 # 이메일 자동 전송 설정 가이드
 
-## Cloudflare Workers를 사용한 이메일 전송 설정
+## Cloudflare Email Routing을 사용한 이메일 전송 설정
+
+이 설정은 Cloudflare Email Routing과 호환되며, `consulting@malgnsoft.com`으로 이메일을 자동 전송합니다.
 
 ### 1. Resend API 계정 생성 및 API 키 발급
 
@@ -8,7 +10,15 @@
 2. API Keys 메뉴에서 새 API 키 생성
 3. 생성된 API 키 복사
 
-### 2. Cloudflare Workers 배포
+### 2. Cloudflare Email Routing 설정 (선택사항)
+
+Cloudflare Email Routing을 사용하여 `consulting@malgnsoft.com`으로 받는 메일을 라우팅할 수 있습니다:
+
+1. Cloudflare 대시보드에서 Email > Email Routing으로 이동
+2. 도메인 추가 및 확인
+3. 받는 주소 규칙 설정 (consulting@malgnsoft.com)
+
+### 3. Cloudflare Workers 배포
 
 1. Cloudflare 대시보드에서 Workers & Pages로 이동
 2. 새 Worker 생성
@@ -19,7 +29,7 @@
 5. Worker 저장 및 배포
 6. 배포된 Worker의 URL 확인 (예: `https://send-email-api.your-subdomain.workers.dev`)
 
-### 3. index.html 업데이트
+### 4. index.html 업데이트
 
 `index.html` 파일에서 `API_ENDPOINT` 변수를 배포된 Worker URL로 변경:
 
@@ -27,10 +37,12 @@
 const API_ENDPOINT = "https://send-email-api.your-subdomain.workers.dev";
 ```
 
-### 4. 테스트
+### 5. 테스트
 
 1. 견적서를 생성하고 버튼 클릭
 2. 이메일이 `consulting@malgnsoft.com`으로 자동 전송되는지 확인
+
+**참고:** 이메일은 항상 `consulting@malgnsoft.com`으로 전송됩니다.
 
 ## 대안: 다른 이메일 서비스 사용
 
