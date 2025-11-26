@@ -877,9 +877,13 @@
           const customName = checkbox.dataset.serviceName;
           const title = customName || (label ? label.querySelector("span")?.textContent.trim() : "부가서비스");
           const price = Number(checkbox.dataset.servicePrice || 0);
+          // small 태그에서 비고 정보 가져오기 (고객사 직접 계약 등)
+          const noteElement = label ? label.querySelector("small") : null;
+          const note = noteElement ? noteElement.textContent.trim() : "";
           return {
             title: title || "부가서비스",
-            price: Number.isFinite(price) ? price : 0
+            price: Number.isFinite(price) ? price : 0,
+            note: note || ""
           };
         });
     }
@@ -1187,22 +1191,44 @@
 
         // 부가 서비스 추가 (세팅비 아래)
         if (serviceDetails.length > 0) {
+          // 세팅비와 부가서비스 사이 구분선 추가
+          const separatorRow = document.createElement("tr");
+          separatorRow.className = "service-separator";
+          separatorRow.innerHTML = `<td colspan="7" style="border-top: 2px solid #e5e7eb; padding: 8px 0;"></td>`;
+          basicItemsTbody.appendChild(separatorRow);
+
           serviceDetails.forEach(service => {
-            if (service.price > 0) {
-              const row = document.createElement("tr");
-              const isMonthly = service.title.includes("보안") || service.title.includes("플레이어");
-              const servicePrice = isMonthly ? service.price * usageMonths : service.price;
-              row.innerHTML = `
-                <td>부가서비스</td>
-                <td>${service.title}</td>
-                <td>${isMonthly ? usageMonths : 1}</td>
-                <td>${isMonthly ? "월" : "회"}</td>
-                <td>${formatCurrency(service.price)}</td>
-                <td>${formatCurrency(servicePrice)}</td>
-                <td>${isMonthly ? "월 단위 비용" : "1회성 비용"}</td>
-              `;
-              basicItemsTbody.appendChild(row);
+            const row = document.createElement("tr");
+            const isMonthly = service.title.includes("보안") || service.title.includes("플레이어");
+            
+            // 가격이 0인 경우 (SMS, 본인인증 등) "-"로 표시
+            const hasPrice = service.price > 0;
+            const unitPrice = hasPrice ? formatCurrency(service.price) : "-";
+            const totalPrice = hasPrice 
+              ? (isMonthly ? formatCurrency(service.price * usageMonths) : formatCurrency(service.price))
+              : "-";
+            
+            // 비고 정보 구성
+            let noteText = "";
+            if (!hasPrice && service.note) {
+              // 가격이 없고 비고가 있는 경우 (고객사 직접 계약 등)
+              noteText = service.note;
+            } else if (isMonthly) {
+              noteText = "월 단위 비용";
+            } else if (hasPrice) {
+              noteText = "1회성 비용";
             }
+            
+            row.innerHTML = `
+              <td>부가서비스</td>
+              <td>${service.title}</td>
+              <td>${isMonthly ? usageMonths : 1}</td>
+              <td>${isMonthly ? "월" : "회"}</td>
+              <td>${unitPrice}</td>
+              <td>${totalPrice}</td>
+              <td>${noteText}</td>
+            `;
+            basicItemsTbody.appendChild(row);
           });
         }
       }
