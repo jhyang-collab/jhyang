@@ -715,12 +715,6 @@
     const previewContact = document.getElementById("previewContact");
     const previewEmail = document.getElementById("previewEmail");
     const previewPhone = document.getElementById("previewPhone");
-    const previewPlan = document.getElementById("previewPlan");
-    const previewMonthly = document.getElementById("previewMonthly");
-    const previewMonths = document.getElementById("previewMonths");
-    const previewServices = document.getElementById("previewServices");
-    const previewTotal = document.getElementById("previewTotal");
-    const previewDeposit = document.getElementById("previewDeposit");
 
     const SECURE_VIDEO_MONTHLY = 390000;
     const SETUP_FEE = 500000;
@@ -1502,17 +1496,29 @@
     }
 
     function exportToExcelInternal() {
+      // 실제 데이터 가져오기
+      const plan = planData[lastCalculation.planKey];
+      const planName = plan?.name || "-";
+      const monthlyFee = lastCalculation.monthlyFee || 0;
+      const usageMonths = lastCalculation.usageMonths || 0;
+      const contractTotal = lastCalculation.contractTotal || 0;
+      const depositTotal = lastCalculation.depositTotal || 0;
+      const serviceDetails = getSelectedServiceDetails();
+      const servicesText = serviceDetails.length > 0 
+        ? serviceDetails.map(s => `${s.title} (${formatCurrency(s.price)})`).join(", ")
+        : "없음";
+      
       const rows = [
-        ["업체명", previewCompany.textContent],
-        ["담당자", previewContact.textContent],
-        ["이메일", previewEmail.textContent],
-        ["연락처", previewPhone.textContent],
-        ["상품 구분", previewPlan.textContent],
-        ["월 이용료", previewMonthly.textContent],
-        ["이용 기간", previewMonths.textContent],
-        ["부가서비스", previewServices.textContent],
-        ["년 계약총액", previewTotal.textContent],
-        ["계약금", previewDeposit.textContent]
+        ["업체명", previewCompany?.textContent || "-"],
+        ["담당자", previewContact?.textContent || "-"],
+        ["이메일", previewEmail?.textContent || "-"],
+        ["연락처", previewPhone?.textContent || "-"],
+        ["상품 구분", planName],
+        ["월 이용료", formatCurrency(monthlyFee) + " (VAT 별도)"],
+        ["이용 기간", `${usageMonths}개월`],
+        ["부가서비스", servicesText],
+        ["년 계약총액", formatCurrency(contractTotal) + " (VAT 별도)"],
+        ["계약금", formatCurrency(depositTotal) + " (VAT 별도)"]
       ];
 
       const tableHtml = `
@@ -1537,25 +1543,49 @@
     async function sendEmail(action) {
       if (!quotePreview || quotePreview.hidden) return;
       
+      // 실제 데이터 가져오기 (null 체크 포함)
+      const companyName = previewCompany?.textContent || "-";
+      const contactName = previewContact?.textContent || "-";
+      const contactEmail = previewEmail?.textContent || "-";
+      const contactPhone = previewPhone?.textContent || "-";
+      
+      // lastCalculation과 planData에서 데이터 가져오기
+      const plan = planData[lastCalculation.planKey];
+      const planName = plan?.name || "-";
+      const monthlyFee = lastCalculation.monthlyFee || 0;
+      const usageMonths = lastCalculation.usageMonths || 0;
+      const contractTotal = lastCalculation.contractTotal || 0;
+      const depositTotal = lastCalculation.depositTotal || 0;
+      
+      // 부가서비스 정보 가져오기
+      const serviceDetails = getSelectedServiceDetails();
+      const servicesText = serviceDetails.length > 0 
+        ? serviceDetails.map(s => `${s.title} (${formatCurrency(s.price)})`).join(", ")
+        : "없음";
+      
+      // DOM 요소에서 가져오기 (fallback)
+      const previewDepositEl = document.getElementById("previewDeposit");
+      const depositText = previewDepositEl?.textContent || formatCurrency(depositTotal) + " (VAT 별도)";
+      
       const emailBody = `
 견적서 요청 정보
 
-업체명: ${previewCompany.textContent}
-담당자: ${previewContact.textContent}
-이메일: ${previewEmail.textContent}
-연락처: ${previewPhone.textContent}
-상품 구분: ${previewPlan.textContent}
-월 이용료: ${previewMonthly.textContent}
-이용 기간: ${previewMonths.textContent}
-부가서비스: ${previewServices.textContent}
-년 계약총액: ${previewTotal.textContent}
-계약금: ${previewDeposit.textContent}
+업체명: ${companyName}
+담당자: ${contactName}
+이메일: ${contactEmail}
+연락처: ${contactPhone}
+상품 구분: ${planName}
+월 이용료: ${formatCurrency(monthlyFee)} (VAT 별도)
+이용 기간: ${usageMonths}개월
+부가서비스: ${servicesText}
+년 계약총액: ${formatCurrency(contractTotal)} (VAT 별도)
+계약금: ${formatCurrency(depositTotal)} (VAT 별도)
 
 작업: ${action}
 요청 시간: ${new Date().toLocaleString("ko-KR")}
       `.trim();
 
-      const subject = `[견적서 요청] ${previewCompany.textContent} - ${action}`;
+      const subject = `[견적서 요청] ${companyName} - ${action}`;
       
       // Cloudflare Workers를 통한 이메일 자동 전송
       // ⚠️ 중요: Workers 배포 후 아래 엔드포인트를 실제 Worker URL로 변경해야 합니다
@@ -1577,16 +1607,16 @@
           to: "consulting@malgnsoft.com",
           subject: subject,
           body: emailBody,
-          company_name: previewCompany.textContent,
-          contact_name: previewContact.textContent,
-          contact_email: previewEmail.textContent,
-          contact_phone: previewPhone.textContent,
-          plan: previewPlan.textContent,
-          monthly_fee: previewMonthly.textContent,
-          usage_months: previewMonths.textContent,
-          services: previewServices.textContent,
-          total: previewTotal.textContent,
-          deposit: previewDeposit.textContent,
+          company_name: companyName,
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone,
+          plan: planName,
+          monthly_fee: formatCurrency(monthlyFee),
+          usage_months: `${usageMonths}개월`,
+          services: servicesText,
+          total: formatCurrency(contractTotal),
+          deposit: formatCurrency(depositTotal),
           action: action
         };
 
