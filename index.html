@@ -342,25 +342,6 @@
         </table>
       </div>
 
-      <!-- 부가 서비스 -->
-      <div class="quote-additional-section" id="previewAdditionalSection" style="display: none;">
-        <h3>부가 서비스 안내</h3>
-        <table class="quote-table">
-          <thead>
-            <tr>
-              <th>구분</th>
-              <th>세부항목</th>
-              <th>수량</th>
-              <th>단위</th>
-              <th>단가</th>
-              <th>비고</th>
-            </tr>
-          </thead>
-          <tbody id="previewAdditionalItems">
-            <!-- JavaScript로 동적 생성 -->
-          </tbody>
-        </table>
-      </div>
 
       <!-- 약관 및 안내 -->
       <div class="quote-terms-section">
@@ -1203,6 +1184,27 @@
           <td>1회성 비용</td>
         `;
         basicItemsTbody.appendChild(setupRow);
+
+        // 부가 서비스 추가 (세팅비 아래)
+        if (serviceDetails.length > 0) {
+          serviceDetails.forEach(service => {
+            if (service.price > 0) {
+              const row = document.createElement("tr");
+              const isMonthly = service.title.includes("보안") || service.title.includes("플레이어");
+              const servicePrice = isMonthly ? service.price * usageMonths : service.price;
+              row.innerHTML = `
+                <td>부가서비스</td>
+                <td>${service.title}</td>
+                <td>${isMonthly ? usageMonths : 1}</td>
+                <td>${isMonthly ? "월" : "회"}</td>
+                <td>${formatCurrency(service.price)}</td>
+                <td>${formatCurrency(servicePrice)}</td>
+                <td>${isMonthly ? "월 단위 비용" : "1회성 비용"}</td>
+              `;
+              basicItemsTbody.appendChild(row);
+            }
+          });
+        }
       }
 
       // 합계 행 업데이트
@@ -1213,33 +1215,6 @@
       if (totalAmountEl) totalAmountEl.textContent = contractTotal ? formatCurrency(contractTotal) : "-";
       if (monthlyAmountEl) monthlyAmountEl.textContent = monthlyFee ? formatCurrency(monthlyFee) : "-";
       if (depositAmountEl) depositAmountEl.textContent = depositTotal ? formatCurrency(depositTotal) : "-";
-
-      // 부가 서비스 테이블 생성
-      const additionalSection = document.getElementById("previewAdditionalSection");
-      const additionalItemsTbody = document.getElementById("previewAdditionalItems");
-      
-      if (serviceDetails.length > 0 && additionalItemsTbody) {
-        additionalSection.style.display = "block";
-        additionalItemsTbody.innerHTML = "";
-        
-        serviceDetails.forEach(service => {
-          if (service.price > 0) {
-            const row = document.createElement("tr");
-            const isMonthly = service.title.includes("보안") || service.title.includes("플레이어");
-            row.innerHTML = `
-              <td>부가서비스</td>
-              <td>${service.title}</td>
-              <td>${isMonthly ? usageMonths : 1}</td>
-              <td>${isMonthly ? "월" : "회"}</td>
-              <td>${formatCurrency(service.price)}</td>
-              <td>${isMonthly ? `월 ${formatCurrency(service.price)}` : "1회성 비용"}</td>
-            `;
-            additionalItemsTbody.appendChild(row);
-          }
-        });
-      } else {
-        if (additionalSection) additionalSection.style.display = "none";
-      }
 
       quotePreview.hidden = false;
       printButton.disabled = false;
