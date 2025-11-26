@@ -47,7 +47,10 @@ export async function onRequestPost(context) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: '견적서 시스템 <noreply@malgnsoft.com>',
+        // ⚠️ 중요: Resend에서 도메인 검증이 완료되면 아래 주소를 사용하세요
+        // from: '견적서 시스템 <noreply@malgnsoft.com>',
+        // 도메인 검증 전까지는 Resend 기본 발신자 주소 사용
+        from: '견적서 시스템 <onboarding@resend.dev>',
         to: 'consulting@malgnsoft.com',
         subject: emailData.subject || '견적서 요청',
         html: `

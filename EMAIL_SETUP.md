@@ -10,6 +10,27 @@
 2. API Keys 메뉴에서 새 API 키 생성
 3. 생성된 API 키 복사
 
+### 1-1. Resend 도메인 검증 (선택사항, 권장)
+
+**⚠️ 중요:** `malgnsoft.com` 도메인을 사용하려면 Resend에서 도메인을 검증해야 합니다.
+
+**임시 해결책:** 도메인 검증 전까지는 Resend 기본 발신자 주소(`onboarding@resend.dev`)가 사용됩니다.
+
+**도메인 검증 방법:**
+1. Resend 대시보드 → **Domains** 메뉴로 이동
+2. **Add Domain** 클릭
+3. `malgnsoft.com` 입력
+4. Resend에서 제공하는 DNS 레코드를 Cloudflare DNS에 추가:
+   - Cloudflare 대시보드 → DNS → Records
+   - Resend에서 제공한 TXT 레코드 추가 (예: `_resend.malgnsoft.com`)
+5. DNS 레코드 추가 후 Resend에서 **Verify** 클릭
+6. 검증 완료 후 `functions/api/send-email.js` 파일에서 발신자 주소를 변경:
+   ```javascript
+   from: '견적서 시스템 <noreply@malgnsoft.com>',
+   ```
+
+**참고:** 도메인 검증이 완료되면 `noreply@malgnsoft.com`으로 이메일을 보낼 수 있습니다.
+
 ### 2. Cloudflare Email Routing 설정 (선택사항)
 
 Cloudflare Email Routing을 사용하여 `consulting@malgnsoft.com`으로 받는 메일을 라우팅할 수 있습니다:
