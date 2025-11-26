@@ -1588,19 +1588,8 @@
       const subject = `[견적서 요청] ${companyName} - ${action}`;
       
       // Cloudflare Workers를 통한 이메일 자동 전송
-      // ⚠️ 중요: Workers 배포 후 아래 엔드포인트를 실제 Worker URL로 변경해야 합니다
-      // Cloudflare 대시보드 > Workers & Pages > 배포된 Worker의 URL을 복사하여 아래에 입력하세요
-      const API_ENDPOINT = "https://send-email-api.your-subdomain.workers.dev"; // ⚠️ 실제 Worker URL로 변경 필요
-      
-      // Workers가 배포되지 않은 경우 확인
-      if (API_ENDPOINT.includes("your-subdomain")) {
-        alert("⚠️ 이메일 전송 설정이 필요합니다.\n\nCloudflare Workers를 배포하고 index.html의 API_ENDPOINT를 실제 Worker URL로 변경해주세요.\n\n자세한 설정 방법은 EMAIL_SETUP.md 파일을 참고하세요.");
-        console.error("이메일 전송 실패: API_ENDPOINT가 설정되지 않았습니다.");
-        // mailto 링크로 대체
-        const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-        window.location.href = mailtoLink;
-        return;
-      }
+      // Pages Functions를 사용하는 경우 /api/send-email 경로로 설정
+      const API_ENDPOINT = "https://jhyang.pages.dev/api/send-email";
       
       try {
         const emailData = {
