@@ -907,3 +907,47 @@ button:disabled {
   }
 }
 
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    min-height: auto;
+  }
+
+  form,
+  .submit-row,
+  .modal,
+  #contactModal,
+  #consentModal {
+    display: none !important;
+  }
+
+  #quotePreview {
+    display: block !important;
+    max-width: none;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #quotePreview[hidden] {
+    display: none !important;
+  }
+
+  #quotePreview .quote-document {
+    width: 190mm;
+    min-height: 277mm;
+    margin: 0 auto !important;
+    padding: 8mm !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+}
+
