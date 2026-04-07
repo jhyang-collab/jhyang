@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>견적서 자동 생성 (SYSOP)</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <form>
+    <h1>견적서 자동 생성</h1>
+    <p class="description">필수 항목을 입력하여 견적 초안을 만들어 보세요.</p>
+
+    <fieldset>
+      <legend>기본 정보</legend>
+      <div>
+        <label for="companyName">업체명 <span class="required-star">*</span></label>
+        <input id="companyName" name="companyName" type="text" placeholder="예: ㈜한빛테크" autocomplete="organization" required>
+      </div>
+      <div style="margin-top: 12px;">
+        <button type="button" id="openContactModal" class="btn-secondary">담당자 정보 입력</button>
+        <span id="contactInfoStatus" class="contact-status"></span>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>금액 정보</legend>
+      <div class="two-column">
+        <div>
+          <label for="monthlyFee">월 이용료 (상품 기준)</label>
+          <input id="monthlyFee" type="text" placeholder="자동 계산 (수정 가능)">
+        </div>
+        <div>
+          <label for="usageMonths">이용 개월 수</label>
+          <input id="usageMonths" type="number" min="1" step="1" value="12">
+        </div>
+        <div>
+          <label for="contractTotal">년 계약총액</label>
+          <input id="contractTotal" type="text" placeholder="자동 계산 (수정 가능)">
+        </div>
+        <div>
+          <label for="depositAmount">계약금 (세팅비 + 부가서비스)</label>
+          <input id="depositAmount" type="text" placeholder="자동 계산 (수정 가능)">
+        </div>
+        <div id="overageStorageContainer" style="display: none;">
+          <label for="overageStorage">초과 저장공간 (1GB당)</label>
+          <input id="overageStorage" type="text" placeholder="자동 계산 (수정 가능)">
+        </div>
+        <div id="overageBandwidthContainer" style="display: none;">
+          <label for="overageBandwidth">초과 전송량 (1GB당)</label>
+          <input id="overageBandwidth" type="text" placeholder="자동 계산 (수정 가능)">
+        </div>
+      </div>
+      <div class="total-highlight" aria-live="polite">
+        <span>월 이용료: <strong id="monthlyFeeText">₩0 / 월</strong></span>
+        <span>년 계약총액: <strong id="contractTotalText">₩0</strong></span>
+      </div>
+      <p class="note vat-note">모든 비용은 VAT 미포함 기준입니다.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>범용 클라우드 상품 선택</legend>
+      <label for="cloudPlan">상품 구분</label>
+      <select id="cloudPlan">
+        <option value="traffic">트래픽 무제한형 (T-스타터)</option>
+        <option value="member">회원수 무제한형 (M-스타터)</option>
+        <option value="trafficStandard">트래픽 무제한형 (T-스탠다드)</option>
+        <option value="memberStandard">회원수 무제한형 (M-스탠다드)</option>
+        <option value="trafficProfessional">트래픽 무제한형 (T-프로페셔널)</option>
+        <option value="memberProfessional">회원수 무제한형 (M-프로페셔널)</option>
+        <option value="enterprise">엔터프라이즈 (별도문의)</option>
+        <option value="publicLight">공공 LMS 라이트</option>
+        <option value="publicStandard">공공 LMS 스탠다드</option>
+        <option value="publicProfessional">공공 LMS 프로페셔널</option>
+        <option value="refundStandard">환급 LMS 스탠다드 (별도문의)</option>
+        <option value="refundProfessional">환급 LMS 프로페셔널 (별도문의)</option>
+      </select>
+      <div class="plan-grid">
+        <article id="planSummary" class="plan-summary" aria-live="polite"></article>
+      </div>
+      <p class="note">상품 선택 시 기본 저장공간 · 전송량 입력값이 자동으로 갱신됩니다.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>기본상품 구성</legend>
+      <div class="product-list">
+        <div class="product-item">
+          <div class="product-info">
+            <span>범용 클라우드 상품</span>
+            <small>선택한 상품 기준 월 이용료</small>
+          </div>
+          <strong id="planPriceDisplay" class="price-tag">₩0 / 월</strong>
+        </div>
+        <div class="product-item">
+          <div class="product-info">
+            <span>동영상 플레이어</span>
+            <small>보안 적용 시 월 ₩390,000 추가</small>
+          </div>
+          <div class="product-addon">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="securePlayer">
+              보안 적용 (+₩390,000/월)
+            </label>
+            <strong id="securePriceDisplay" class="price-tag">₩0 / 월</strong>
+          </div>
+        </div>
+        <div class="product-item">
+          <div class="product-info">
+            <span>세팅비</span>
+            <small>초기 1회 청구</small>
+          </div>
+          <strong class="price-tag">₩500,000</strong>
+        </div>
+      </div>
+      <p class="note">※ 기본상품 항목은 필수 포함 항목입니다. 월 이용료는 선택 옵션에 따라 자동 계산됩니다.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>저장공간 · 전송량</legend>
+      <div class="two-column">
+        <div>
+          <label for="storageSize">저장공간</label>
+          <input id="storageSize" type="text" placeholder="예: 200GB">
+        </div>
+        <div>
+          <label for="bandwidth">전송량</label>
+          <input id="bandwidth" type="text" placeholder="예: 2TB/월">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>부가서비스</legend>
+      <p class="note">필요한 항목을 선택해 주세요. (VAT 미포함)</p>
+      <div class="service-list">
+        <div class="service-group">
+          <div class="service-group-title">PG 전자결제 (1회성 비용) <span class="note-inline">※ 단일 선택만 가능</span></div>
+          <div class="service-sub-list">
+            <label class="service-item">
+              <div>
+                <span>KG모빌리언스</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="radio" name="pgService" id="servicePgKgm" value="kgm" data-service-price="100000" data-service-name="PG 전자결제 (KG모빌리언스)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>KG이니시스</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="radio" name="pgService" id="servicePgInicis" value="inicis" data-service-price="100000" data-service-name="PG 전자결제 (KG이니시스)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>토스</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="radio" name="pgService" id="servicePgToss" value="toss" data-service-price="100000" data-service-name="PG 전자결제 (토스)">
+            </label>
+          </div>
+        </div>
+        <label class="service-item">
+          <div>
+            <span>수료증 제작</span>
+            <small>1회성 비용 ₩100,000</small>
+          </div>
+          <input type="checkbox" id="serviceCertificate" data-service-price="100000">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>SSO 연동</span>
+            <small>1회성 비용 ₩500,000</small>
+          </div>
+          <input type="checkbox" id="serviceSso" data-service-price="500000">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>API 연동</span>
+            <small>1회성 비용 ₩500,000</small>
+          </div>
+          <input type="checkbox" id="serviceApi" data-service-price="500000">
+        </label>
+        <div class="service-group">
+          <div class="service-group-title">소셜로그인 (1회성 비용)</div>
+          <div class="service-sub-list">
+            <label class="service-item">
+              <div>
+                <span>네이버</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="checkbox" id="serviceSocialNaver" data-service-price="100000" data-service-name="소셜로그인 (네이버)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>구글</span>
+                <small>1회성 비용 ₩100,000</small>
+              </div>
+              <input type="checkbox" id="serviceSocialGoogle" data-service-price="100000" data-service-name="소셜로그인 (구글)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>카카오톡</span>
+                <small>1회성 비용 ₩50,000</small>
+              </div>
+              <input type="checkbox" id="serviceSocialKakao" data-service-price="50000" data-service-name="소셜로그인 (카카오톡)">
+            </label>
+            <label class="service-item">
+              <div>
+                <span>페이스북</span>
+                <small>1회성 비용 ₩50,000</small>
+              </div>
+              <input type="checkbox" id="serviceSocialFacebook" data-service-price="50000" data-service-name="소셜로그인 (페이스북)">
+            </label>
+          </div>
+        </div>
+        <label class="service-item">
+          <div>
+            <span>보다 화상 서비스</span>
+            <small>1회성 비용 ₩20,000</small>
+          </div>
+          <input type="checkbox" id="serviceVideo" data-service-price="20000">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>SMS문자서비스/알림톡</span>
+            <small>차감방식, 고객사 직접 계약</small>
+          </div>
+          <input type="checkbox" id="serviceSms" data-service-price="0" data-service-name="SMS문자서비스/알림톡">
+        </label>
+        <label class="service-item">
+          <div>
+            <span>휴대폰 본인인증 / 아이핀</span>
+            <small>적립금 차감 방식, 고객사 직접 계약</small>
+          </div>
+          <input type="checkbox" id="serviceAuth" data-service-price="0" data-service-name="휴대폰 본인인증 / 아이핀">
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="submit-row">
+      <button type="button" id="generateQuote">임시 견적 생성</button>
+      <button type="button" id="printQuote" disabled>PDF 출력</button>
+    </div>
+  </form>
+
+  <section id="quotePreview" class="quote-preview" hidden aria-live="polite">
+    <div class="quote-document">
+      <!-- 견적서 헤더 -->
+      <div class="quote-header">
+        <div class="quote-company-info">
+          <h1 class="quote-company-name">맑은소프트</h1>
+          <div class="quote-company-details">
+            <p>서울특별시 구로구 디지털로 288, 1701호</p>
+            <p>Tel: 1666-3412 | 사업자등록번호: 119-86-39050</p>
+            <p>대표자: 하근호</p>
+          </div>
+        </div>
+        <div class="quote-title">
+          <h2>견적서</h2>
+          <img class="quote-stamp" src="/images/malgnsoft-stamp.jpg" alt="맑은소프트 서명 도장">
+        </div>
+      </div>
+
+      <!-- 견적 정보 -->
+      <div class="quote-info-section">
+        <div class="quote-info-grid">
+          <div class="quote-info-item">
+            <span class="quote-info-label">견적 명칭</span>
+            <span class="quote-info-value" id="previewQuoteName">-</span>
+          </div>
+          <div class="quote-info-item">
+            <span class="quote-info-label">견적 일자</span>
+            <span class="quote-info-value" id="previewQuoteDate">-</span>
+          </div>
+          <div class="quote-info-item">
+            <span class="quote-info-label">계약 총액</span>
+            <span class="quote-info-value" id="previewContractTotal">-</span>
+          </div>
+          <div class="quote-info-item">
+            <span class="quote-info-label">계약금</span>
+            <span class="quote-info-value" id="previewDeposit">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 고객 정보 -->
+      <div class="quote-customer-section">
+        <h3>고객 정보</h3>
+        <div class="quote-customer-grid">
+          <div class="quote-customer-item">
+            <span>업체명</span>
+            <strong id="previewCompany">-</strong>
+          </div>
+          <div class="quote-customer-item">
+            <span>담당자</span>
+            <strong id="previewContact">-</strong>
+          </div>
+          <div class="quote-customer-item">
+            <span>이메일</span>
+            <strong id="previewEmail">-</strong>
+          </div>
+          <div class="quote-customer-item">
+            <span>연락처</span>
+            <strong id="previewPhone">-</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 기본 항목 -->
+      <div class="quote-items-section">
+        <h3>기본 항목</h3>
+        <table class="quote-table">
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>세부항목</th>
+              <th>수량</th>
+              <th>단위</th>
+              <th>단가</th>
+              <th>공급가액</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="previewBasicItems">
+            <!-- JavaScript로 동적 생성 -->
+          </tbody>
+          <tfoot>
+            <tr class="quote-summary-row">
+              <td colspan="5" class="quote-summary-label">계약 총액</td>
+              <td class="quote-summary-value" id="previewTotalAmount">-</td>
+              <td></td>
+            </tr>
+            <tr class="quote-summary-row">
+              <td colspan="5" class="quote-summary-label">월 사용료</td>
+              <td class="quote-summary-value" id="previewMonthlyAmount">-</td>
+              <td></td>
+            </tr>
+            <tr class="quote-summary-row">
+              <td colspan="5" class="quote-summary-label">계약금 (세팅비+부가서비스)</td>
+              <td class="quote-summary-value" id="previewDepositAmount">-</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+
+      <!-- 약관 및 안내 -->
+      <div class="quote-terms-section">
+        <h3>약관 및 안내사항</h3>
+        <div class="quote-terms-list">
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>과금시작:</strong> 계약서에 기재된 계약기간부터 과금시작되며, 첫달부터 세금계산서가 발행됩니다.</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>결제조건:</strong> 당월 사용료 당월 10일 이내 납부입니다.</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>기능개발:</strong> 계약체결시점 현재의 LMS기능을 사용하되, 커스터마이징 추가기능 개발은 별도비용이 발생하며, 검토 후 개발이 불가할 수 있습니다.</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>견적제외:</strong> 홈페이지 기본테마를 제외한 부가서비스는 별도 비용이 발생합니다.</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>결제정보:</strong> 신한은행 100-027-164841 예금주 (주)맑은소프트</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>견적담당:</strong> 양진환 팀장 | tel. 010-6207-2128 | e-mail. jhyang@malgnsoft.com</span>
+          </div>
+          <div class="quote-term-item">
+            <span class="quote-term-checkbox">□</span>
+            <span class="quote-term-text"><strong>유효기간:</strong> 본 견적서의 유효 기간은 견적일자로부터 7일이며, 이후 가격정책 변경시행시 견적내용이 달라질 수 있습니다.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="contactModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>담당자 정보 입력</h3>
+        <button type="button" class="modal-close" id="closeContactModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <label for="modalContactName">담당자 이름 <span class="required-star">*</span></label>
+          <input id="modalContactName" type="text" placeholder="예: 김담당" required>
+        </div>
+        <div>
+          <label for="modalContactEmail">이메일 주소 <span class="required-star">*</span></label>
+          <input id="modalContactEmail" type="email" placeholder="예: contact@example.com" required>
+        </div>
+        <div>
+          <label for="modalContactPhone">연락처 <span class="required-star">*</span></label>
+          <input id="modalContactPhone" type="tel" placeholder="예: 010-0000-0000" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="saveContactInfo" class="btn-primary">저장</button>
+        <button type="button" id="cancelContactInfo" class="btn-secondary">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 동의 팝업 -->
+  <div id="consentModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>담당자 정보 전송 동의</h3>
+        <button type="button" class="modal-close" id="closeConsentModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>입력하신 담당자 정보가 맑은소프트 담당자에게 전송됩니다.</p>
+        <p>동의하시겠습니까?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="consentAgree" class="btn-primary">동의</button>
+        <button type="button" id="consentCancel" class="btn-secondary">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const planData = {
+      traffic: {
+        key: "traffic",
+        name: "트래픽 무제한형 (T-스타터)",
+        subtitle: "범용 클라우드 LMS",
+        price: 500000,
+        priceSuffix: "월",
+        storage: "100GB",
+        bandwidth: "무제한",
+        overageStorage: 1000,
+        overageBandwidth: null, // 무제한
+        notes: [
+          "동영상 월 전송량·웹 트래픽 무제한",
+          "누적 회원수 1,000명",
+          "개인정보보호 · 실시간 라이브 강의 제공",
+          "미리캔버스 디자인 플랫폼 포함"
+        ]
+      },
+      member: {
+        key: "member",
+        name: "회원수 무제한형 (M-스타터)",
+        subtitle: "범용 클라우드 LMS",
+        price: 500000,
+        priceSuffix: "월",
+        storage: "50GB",
+        bandwidth: "500GB/월",
+        overageStorage: 1000,
+        overageBandwidth: 500,
+        notes: [
+          "누적 회원수 무제한",
+          "동영상 월 전송량 500GB",
+          "웹 트래픽 무제한 및 개인정보보호 제공",
+          "미리캔버스 · 실시간 라이브 강의 포함"
+        ]
+      },
+      trafficStandard: {
+        key: "trafficStandard",
+        name: "트래픽 무제한형 (T-스탠다드)",
+        subtitle: "범용 클라우드 LMS",
+        price: 700000,
+        priceSuffix: "월",
+        storage: "150GB",
+        bandwidth: "무제한",
+        overageStorage: 700,
+        overageStorageDiscount: "30% 할인",
+        overageBandwidth: null, // 무제한
+        notes: [
+          "동영상·웹 트래픽 무제한 (고급 SLA)",
+          "누적 회원수 2,000명",
+          "개인정보보호 · 정기 구독 및 라이브 강의 포함",
+          "전용 기술지원 · 미리캔버스 제공"
+        ]
+      },
+      memberStandard: {
+        key: "memberStandard",
+        name: "회원수 무제한형 (M-스탠다드)",
+        subtitle: "범용 클라우드 LMS",
+        price: 700000,
+        priceSuffix: "월",
+        storage: "100GB",
+        bandwidth: "1,000GB/월",
+        overageStorage: 700,
+        overageStorageDiscount: "30% 할인",
+        overageBandwidth: 500,
+        notes: [
+          "누적 회원수 무제한 (고급 분석 포함)",
+          "동영상 월 전송량 1,000GB",
+          "API 확장 · 개인정보보호 고급옵션 제공",
+          "실시간 라이브 · 전담 고객 성공 매니저 배정"
+        ]
+      },
+      trafficProfessional: {
+        key: "trafficProfessional",
+        name: "트래픽 무제한형 (T-프로페셔널)",
+        subtitle: "범용 클라우드 LMS",
+        price: 1000000,
+        priceSuffix: "월",
+        storage: "200GB",
+        bandwidth: "무제한",
+        overageStorage: 500,
+        overageStorageDiscount: "50% 할인",
+        overageBandwidth: null, // 무제한
+        notes: [
+          "동영상 월 전송량·웹 트래픽 무제한",
+          "누적 회원수 4,000명",
+          "개인정보보호 · 실시간 라이브 강의 제공",
+          "미리캔버스 · 정기 구독 · 포인트 기능 포함",
+          "학습 전용 APP 제공"
+        ]
+      },
+      memberProfessional: {
+        key: "memberProfessional",
+        name: "회원수 무제한형 (M-프로페셔널)",
+        subtitle: "범용 클라우드 LMS",
+        price: 1000000,
+        priceSuffix: "월",
+        storage: "200GB",
+        bandwidth: "2,000GB/월",
+        overageStorage: 500,
+        overageStorageDiscount: "50% 할인",
+        overageBandwidth: 300,
+        overageBandwidthDiscount: "40% 할인",
+        notes: [
+          "누적 회원수 무제한",
+          "동영상 월 전송량 2,000GB",
+          "웹 트래픽 무제한 및 개인정보보호 제공",
+          "미리캔버스 · 정기 구독 · 포인트 기능 포함",
+          "실시간 라이브 강의 · 학습 전용 APP 제공"
+        ]
+      },
+      enterprise: {
+        key: "enterprise",
+        name: "엔터프라이즈",
+        subtitle: "맞춤형 엔터프라이즈 솔루션",
+        price: 0,
+        priceSuffix: "별도문의",
+        storage: "맞춤형",
+        bandwidth: "맞춤형",
+        overageStorage: null,
+        overageBandwidth: null,
+        notes: [
+          "대규모 기업 및 공공기관을 위한 맞춤형 솔루션",
+          "전담 기술지원 및 커스터마이징 제공",
+          "고급 보안 및 인증 기능",
+          "전용 서버 및 인프라 구성 가능",
+          "상세한 견적은 별도 문의 필요"
+        ],
+        customInquiry: true
+      },
+      publicLight: {
+        key: "publicLight",
+        name: "공공 LMS 라이트",
+        subtitle: "공공 클라우드 LMS",
+        price: 2000000,
+        priceSuffix: "월",
+        storage: "300GB",
+        bandwidth: "2,000GB/월",
+        overageStorage: null,
+        overageBandwidth: null,
+        notes: [
+          "CSAP 인증 공공 클라우드 LMS",
+          "저장공간 300GB (약 500시간 동영상 업로드 가능)",
+          "VOD 서비스 전송량 2,000GB/월 (8시간 학습 기준 약 420명 가능)",
+          "LMS 기본서비스 포함 (하드웨어, 소프트웨어, CSAP 보안 패키지)",
+          "부가서비스 포함 (신용카드 결제, 수료증 발급, SSO 연동, API 연동)"
+        ],
+        customInquiry: false
+      },
+      publicStandard: {
+        key: "publicStandard",
+        name: "공공 LMS 스탠다드",
+        subtitle: "공공 클라우드 LMS",
+        price: 2500000,
+        priceSuffix: "월",
+        storage: "400GB",
+        bandwidth: "3,000GB/월",
+        overageStorage: null,
+        overageBandwidth: null,
+        notes: [
+          "CSAP 인증 공공 클라우드 LMS",
+          "저장공간 400GB (약 666시간 동영상 업로드 가능)",
+          "VOD 서비스 전송량 3,000GB/월 (8시간 학습 기준 약 625명 가능)",
+          "LMS 기본서비스 포함 (하드웨어, 소프트웨어, CSAP 보안 패키지)",
+          "부가서비스 포함 (신용카드 결제, 수료증 발급, SSO 연동, API 연동)"
+        ],
+        customInquiry: false
+      },
+      publicProfessional: {
+        key: "publicProfessional",
+        name: "공공 LMS 프로페셔널",
+        subtitle: "공공 클라우드 LMS",
+        price: 3200000,
+        priceSuffix: "월",
+        storage: "500GB",
+        bandwidth: "5,000GB/월",
+        overageStorage: null,
+        overageBandwidth: null,
+        notes: [
+          "CSAP 인증 공공 클라우드 LMS",
+          "저장공간 500GB (약 833시간 동영상 업로드 가능)",
+          "VOD 서비스 전송량 5,000GB/월 (8시간 학습 기준 약 1,041명 가능)",
+          "LMS 기본서비스 포함 (하드웨어, 소프트웨어, CSAP 보안 패키지)",
+          "부가서비스 포함 (신용카드 결제, 수료증 발급, SSO 연동, API 연동)"
+        ],
+        customInquiry: false
+      },
+      refundStandard: {
+        key: "refundStandard",
+        name: "환급 LMS 스탠다드",
+        subtitle: "환급 클라우드 LMS",
+        price: 0,
+        priceSuffix: "별도문의",
+        storage: "맞춤형",
+        bandwidth: "맞춤형",
+        overageStorage: null,
+        overageBandwidth: null,
+        notes: [
+          "CSAP 인증 환급 클라우드 LMS",
+          "국내 1위 SaaS형 클라우드 LMS 솔루션",
+          "안정성과 신뢰성 보장",
+          "환급 서비스 제공에 최적화",
+          "상세한 견적은 별도 문의 필요"
+        ],
+        customInquiry: true
+      },
+      refundProfessional: {
+        key: "refundProfessional",
+        name: "환급 LMS 프로페셔널",
+        subtitle: "환급 클라우드 LMS",
+        price: 0,
+        priceSuffix: "별도문의",
+        storage: "맞춤형",
+        bandwidth: "맞춤형",
+        overageStorage: null,
+        overageBandwidth: null,
+        notes: [
+          "CSAP 인증 환급 클라우드 LMS",
+          "국내 1위 SaaS형 클라우드 LMS 솔루션",
+          "고급 기능 및 전담 지원 제공",
+          "환급 서비스 제공에 최적화",
+          "상세한 견적은 별도 문의 필요"
+        ],
+        customInquiry: true
+      }
+    };
+
+    const formatter = new Intl.NumberFormat("ko-KR");
+    const quoteForm = document.querySelector("form");
+    const companyNameInput = document.getElementById("companyName");
+    const contactModal = document.getElementById("contactModal");
+    const openContactModalBtn = document.getElementById("openContactModal");
+    const closeContactModalBtn = document.getElementById("closeContactModal");
+    const saveContactInfoBtn = document.getElementById("saveContactInfo");
+    const cancelContactInfoBtn = document.getElementById("cancelContactInfo");
+    const contactInfoStatus = document.getElementById("contactInfoStatus");
+    const modalContactName = document.getElementById("modalContactName");
+    const modalContactEmail = document.getElementById("modalContactEmail");
+    const modalContactPhone = document.getElementById("modalContactPhone");
+    
+    let contactInfo = {
+      name: "",
+      email: "",
+      phone: ""
+    };
+    const cloudPlanSelect = document.getElementById("cloudPlan");
+    const planSummary = document.getElementById("planSummary");
+    const storageInput = document.getElementById("storageSize");
+    const bandwidthInput = document.getElementById("bandwidth");
+    const monthlyFeeInput = document.getElementById("monthlyFee");
+    const contractTotalInput = document.getElementById("contractTotal");
+    const depositInput = document.getElementById("depositAmount");
+    const planPriceDisplay = document.getElementById("planPriceDisplay");
+    const securePriceDisplay = document.getElementById("securePriceDisplay");
+    const monthlyFeeText = document.getElementById("monthlyFeeText");
+    const contractTotalText = document.getElementById("contractTotalText");
+    const securePlayerCheckbox = document.getElementById("securePlayer");
+    const usageMonthsInput = document.getElementById("usageMonths");
+    const serviceCheckboxes = Array.from(document.querySelectorAll("[data-service-price]"));
+    const generateButton = document.getElementById("generateQuote");
+    const printButton = document.getElementById("printQuote");
+    const quotePreview = document.getElementById("quotePreview");
+    const consentModal = document.getElementById("consentModal");
+    const consentAgreeBtn = document.getElementById("consentAgree");
+    const consentCancelBtn = document.getElementById("consentCancel");
+    const closeConsentModalBtn = document.getElementById("closeConsentModal");
+    let pendingAction = null; // 동의 후 실행할 액션 저장
+    const previewCompany = document.getElementById("previewCompany");
+    const previewContact = document.getElementById("previewContact");
+    const previewEmail = document.getElementById("previewEmail");
+    const previewPhone = document.getElementById("previewPhone");
+
+    const SECURE_VIDEO_MONTHLY = 390000;
+    const SETUP_FEE = 500000;
+
+    let lastCalculation = {
+      planKey: cloudPlanSelect.value,
+      contractTotal: 0,
+      monthlyFee: 0,
+      depositTotal: 0,
+      usageMonths: Number(usageMonthsInput?.value) || 0,
+      serviceNames: [],
+      securitySelected: false,
+      securityFee: 0
+    };
+
+    function formatCurrency(amount) {
+      return `₩${formatter.format(amount)}`;
+    }
+
+    function parseCurrencyInput(value) {
+      if (!value) return 0;
+      const numeric = String(value).replace(/[^\d-]/g, "");
+      const parsed = Number(numeric);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function getAmountFromInput(inputElement, fallbackValue = 0) {
+      if (!inputElement) return fallbackValue;
+      const parsed = parseCurrencyInput(inputElement.value);
+      return parsed > 0 ? parsed : fallbackValue;
+    }
+
+    function syncManualAmountInputs() {
+      const monthly = parseCurrencyInput(monthlyFeeInput?.value);
+      const contract = parseCurrencyInput(contractTotalInput?.value);
+      const deposit = parseCurrencyInput(depositInput?.value);
+
+      if (monthly > 0) {
+        lastCalculation.monthlyFee = monthly;
+        if (monthlyFeeText) monthlyFeeText.textContent = `${formatCurrency(monthly)} / 월`;
+      }
+      if (contract > 0) {
+        lastCalculation.contractTotal = contract;
+        if (contractTotalText) {
+          contractTotalText.textContent = `${formatCurrency(contract)} (총 ${lastCalculation.usageMonths || getUsageMonths()}개월)`;
+        }
+      }
+      if (deposit > 0) {
+        lastCalculation.depositTotal = deposit;
+      }
+    }
+
+    function validateBasicInfo() {
+      if (!companyNameInput || !companyNameInput.value.trim()) {
+        alert("업체명을 입력하셔야 합니다.");
+        companyNameInput?.focus();
+        return false;
+      }
+      
+      if (!contactInfo.name || !contactInfo.email || !contactInfo.phone) {
+        alert("담당자 정보를 입력하셔야 합니다. '담당자 정보 입력' 버튼을 클릭해 주세요.");
+        openContactModalBtn?.focus();
+        return false;
+      }
+      return true;
+    }
+
+    function updateContactStatus() {
+      if (contactInfo.name && contactInfo.email && contactInfo.phone) {
+        contactInfoStatus.textContent = `✓ ${contactInfo.name} (${contactInfo.email})`;
+        contactInfoStatus.style.color = "#059669";
+      } else {
+        contactInfoStatus.textContent = "담당자 정보를 입력해 주세요.";
+        contactInfoStatus.style.color = "#dc2626";
+      }
+    }
+
+    function openModal() {
+      if (contactModal) {
+        contactModal.hidden = false;
+        if (contactInfo.name) modalContactName.value = contactInfo.name;
+        if (contactInfo.email) modalContactEmail.value = contactInfo.email;
+        if (contactInfo.phone) modalContactPhone.value = contactInfo.phone;
+        modalContactName?.focus();
+      }
+    }
+
+    function closeModal() {
+      if (contactModal) {
+        contactModal.hidden = true;
+      }
+    }
+
+    function saveContactInfo() {
+      if (!modalContactName || !modalContactName.value.trim()) {
+        alert("담당자 이름을 입력해 주세요.");
+        modalContactName?.focus();
+        return;
+      }
+      if (!modalContactEmail || !modalContactEmail.value.trim()) {
+        alert("이메일 주소를 입력해 주세요.");
+        modalContactEmail?.focus();
+        return;
+      }
+      if (!modalContactPhone || !modalContactPhone.value.trim()) {
+        alert("연락처를 입력해 주세요.");
+        modalContactPhone?.focus();
+        return;
+      }
+
+      contactInfo = {
+        name: modalContactName.value.trim(),
+        email: modalContactEmail.value.trim(),
+        phone: modalContactPhone.value.trim()
+      };
+      updateContactStatus();
+      closeModal();
+    }
+
+    if (openContactModalBtn) {
+      openContactModalBtn.addEventListener("click", openModal);
+    }
+    if (closeContactModalBtn) {
+      closeContactModalBtn.addEventListener("click", closeModal);
+    }
+    if (cancelContactInfoBtn) {
+      cancelContactInfoBtn.addEventListener("click", closeModal);
+    }
+    if (saveContactInfoBtn) {
+      saveContactInfoBtn.addEventListener("click", saveContactInfo);
+    }
+    if (contactModal) {
+      contactModal.hidden = true;
+      contactModal.addEventListener("click", (e) => {
+        if (e.target === contactModal) closeModal();
+      });
+    }
+
+    // 동의 팝업 이벤트 리스너
+    if (consentAgreeBtn) {
+      consentAgreeBtn.addEventListener("click", () => {
+        if (consentModal) {
+          consentModal.hidden = true;
+        }
+        executePendingAction();
+      });
+    }
+
+    if (consentCancelBtn) {
+      consentCancelBtn.addEventListener("click", () => {
+        if (consentModal) {
+          consentModal.hidden = true;
+        }
+        pendingAction = null;
+      });
+    }
+
+    if (closeConsentModalBtn) {
+      closeConsentModalBtn.addEventListener("click", () => {
+        if (consentModal) {
+          consentModal.hidden = true;
+        }
+        pendingAction = null;
+      });
+    }
+
+    if (consentModal) {
+      consentModal.hidden = true;
+      consentModal.addEventListener("click", (e) => {
+        if (e.target === consentModal) {
+          consentModal.hidden = true;
+          pendingAction = null;
+        }
+      });
+    }
+
+    updateContactStatus();
+
+    function getUsageMonths() {
+      if (!usageMonthsInput) return 0;
+      const value = parseInt(usageMonthsInput.value, 10);
+      return Number.isFinite(value) && value > 0 ? value : 0;
+    }
+
+    function renderPlan(planKey) {
+      const plan = planData[planKey];
+      if (!plan) return;
+      const priceText = plan.customInquiry 
+        ? "별도 문의" 
+        : `${formatCurrency(plan.price)} / ${plan.priceSuffix}`;
+      planSummary.innerHTML = `
+        <p class="plan-eyebrow">${plan.subtitle}</p>
+        <h3>${plan.name}</h3>
+        <div class="plan-price">${priceText}</div>
+        <ul>
+          ${plan.notes.map(item => `<li>${item}</li>`).join("")}
+        </ul>
+        ${plan.customInquiry ? '<p class="note" style="margin-top: 16px; color: #2563eb; font-weight: 600;">※ 상세한 견적은 consulting@malgnsoft.com으로 문의해 주세요.</p>' : ''}
+      `;
+      if (storageInput) storageInput.value = plan.storage;
+      if (bandwidthInput) bandwidthInput.value = plan.bandwidth;
+      calculateTotals(planKey);
+    }
+
+    function getSelectedServiceDetails() {
+      if (!serviceCheckboxes.length) return [];
+      return serviceCheckboxes
+        .filter((checkbox) => checkbox.checked)
+        .map((checkbox) => {
+          const label = checkbox.closest(".service-item");
+          // data-service-name 속성이 있으면 우선 사용, 없으면 span 텍스트 사용
+          const customName = checkbox.dataset.serviceName;
+          const title = customName || (label ? label.querySelector("span")?.textContent.trim() : "부가서비스");
+          const price = Number(checkbox.dataset.servicePrice || 0);
+          // small 태그에서 비고 정보 가져오기 (고객사 직접 계약 등)
+          const noteElement = label ? label.querySelector("small") : null;
+          const note = noteElement ? noteElement.textContent.trim() : "";
+          return {
+            title: title || "부가서비스",
+            price: Number.isFinite(price) ? price : 0,
+            note: note || ""
+          };
+        });
+    }
+
+    function calculateTotals(planKey = cloudPlanSelect.value) {
+      const plan = planData[planKey];
+      if (!plan) return;
+
+      const serviceDetails = getSelectedServiceDetails();
+      const serviceTotal = serviceDetails.reduce((sum, item) => sum + item.price, 0);
+      const usageMonths = getUsageMonths();
+      const securityFee = securePlayerCheckbox && securePlayerCheckbox.checked ? SECURE_VIDEO_MONTHLY : 0;
+
+      // 별도문의 상품 처리
+      if (plan.customInquiry) {
+        if (planPriceDisplay) {
+          planPriceDisplay.textContent = "별도 문의";
+        }
+        if (securePriceDisplay) {
+          securePriceDisplay.textContent = securityFee
+            ? `${formatCurrency(securityFee)} / 월`
+            : "₩0 / 월";
+        }
+        if (monthlyFeeInput) {
+          monthlyFeeInput.value = "별도 문의";
+          monthlyFeeInput.setAttribute("data-value", 0);
+        }
+        if (monthlyFeeText) {
+          monthlyFeeText.textContent = "별도 문의";
+        }
+        if (contractTotalInput) {
+          contractTotalInput.value = "별도 문의";
+          contractTotalInput.setAttribute("data-value", 0);
+        }
+        if (contractTotalText) {
+          contractTotalText.textContent = "별도 문의";
+        }
+        if (depositInput) {
+          const formatted = depositTotal > 0 ? formatCurrency(depositTotal) : "별도 문의";
+          depositInput.value = formatted;
+          depositInput.setAttribute("data-value", depositTotal || 0);
+        }
+        // 별도문의 상품은 초과금 정보 숨김
+        const overageStorageContainer = document.getElementById("overageStorageContainer");
+        const overageBandwidthContainer = document.getElementById("overageBandwidthContainer");
+        if (overageStorageContainer) {
+          overageStorageContainer.style.display = "none";
+        }
+        if (overageBandwidthContainer) {
+          overageBandwidthContainer.style.display = "none";
+        }
+        return;
+      }
+
+      if (planPriceDisplay) {
+        planPriceDisplay.textContent = `${formatCurrency(plan.price)} / 월`;
+      }
+
+      if (securePriceDisplay) {
+        securePriceDisplay.textContent = securityFee
+          ? `${formatCurrency(securityFee)} / 월`
+          : "₩0 / 월";
+      }
+
+      const monthlyTotal = plan.price + securityFee;
+      const contractTotal = usageMonths > 0
+        ? (monthlyTotal * usageMonths) + SETUP_FEE + serviceTotal
+        : 0;
+      const depositTotal = SETUP_FEE + serviceTotal;
+
+      if (monthlyFeeInput) {
+        const formatted = monthlyTotal ? formatCurrency(monthlyTotal) : "₩0";
+        monthlyFeeInput.value = formatted;
+        monthlyFeeInput.setAttribute("data-value", monthlyTotal || 0);
+      }
+
+      if (monthlyFeeText) {
+        monthlyFeeText.textContent = `${formatCurrency(monthlyTotal)} / 월`;
+      }
+
+      if (contractTotalInput) {
+        const formatted = contractTotal ? formatCurrency(contractTotal) : "₩0";
+        contractTotalInput.value = formatted;
+        contractTotalInput.setAttribute("data-value", contractTotal || 0);
+      }
+
+      if (contractTotalText) {
+        contractTotalText.textContent = contractTotal
+          ? `${formatCurrency(contractTotal)} (총 ${usageMonths}개월)`
+          : "₩0";
+      }
+
+      if (depositInput) {
+        const formatted = depositTotal ? formatCurrency(depositTotal) : "₩0";
+        depositInput.value = formatted;
+        depositInput.setAttribute("data-value", depositTotal || 0);
+      }
+
+      // 초과금 정보 표시
+      const overageStorageContainer = document.getElementById("overageStorageContainer");
+      const overageBandwidthContainer = document.getElementById("overageBandwidthContainer");
+      const overageStorageInput = document.getElementById("overageStorage");
+      const overageBandwidthInput = document.getElementById("overageBandwidth");
+
+      // 저장공간 초과금
+      if (plan.overageStorage !== undefined && plan.overageStorage !== null) {
+        if (overageStorageContainer) {
+          overageStorageContainer.style.display = "";
+        }
+        if (overageStorageInput) {
+          let storageText = formatCurrency(plan.overageStorage);
+          if (plan.overageStorageDiscount) {
+            storageText += ` (${plan.overageStorageDiscount})`;
+          }
+          overageStorageInput.value = storageText;
+        }
+      } else if (plan.overageStorage === null && plan.customInquiry !== true) {
+        // 별도 문의가 아닌 경우에만 표시
+        if (overageStorageContainer) {
+          overageStorageContainer.style.display = "none";
+        }
+      } else {
+        if (overageStorageContainer) {
+          overageStorageContainer.style.display = "none";
+        }
+      }
+
+      // 전송량 초과금
+      if (plan.overageBandwidth !== undefined) {
+        if (plan.overageBandwidth !== null) {
+          if (overageBandwidthContainer) {
+            overageBandwidthContainer.style.display = "";
+          }
+          if (overageBandwidthInput) {
+            let bandwidthText = formatCurrency(plan.overageBandwidth);
+            if (plan.overageBandwidthDiscount) {
+              bandwidthText += ` (${plan.overageBandwidthDiscount})`;
+            }
+            overageBandwidthInput.value = bandwidthText;
+          }
+        } else {
+          // 무제한
+          if (overageBandwidthContainer) {
+            overageBandwidthContainer.style.display = "";
+          }
+          if (overageBandwidthInput) {
+            overageBandwidthInput.value = "무제한";
+          }
+        }
+      } else {
+        if (overageBandwidthContainer) {
+          overageBandwidthContainer.style.display = "none";
+        }
+      }
+
+      lastCalculation = {
+        planKey,
+        contractTotal,
+        monthlyFee: monthlyTotal,
+        depositTotal,
+        usageMonths,
+        serviceNames: serviceDetails.map((item) => item.title),
+        securitySelected: securityFee > 0,
+        securityFee
+      };
+    }
+
+    cloudPlanSelect.addEventListener("change", (event) => {
+      renderPlan(event.target.value);
+    });
+
+    if (securePlayerCheckbox) {
+      securePlayerCheckbox.addEventListener("change", () => calculateTotals());
+    }
+
+    if (usageMonthsInput) {
+      usageMonthsInput.addEventListener("input", () => calculateTotals());
+    }
+
+    [monthlyFeeInput, contractTotalInput, depositInput].forEach((inputElement) => {
+      inputElement?.addEventListener("input", syncManualAmountInputs);
+    });
+
+    serviceCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", () => calculateTotals());
+    });
+
+    function showConsentModal(action) {
+      pendingAction = action;
+      if (consentModal) {
+        consentModal.hidden = false;
+      }
+    }
+
+    function executePendingAction() {
+      if (!pendingAction) return;
+      
+      const action = pendingAction;
+      pendingAction = null;
+
+      if (action === "generate") {
+        generateQuoteInternal();
+      } else if (action === "print") {
+        openPrintWindowInternal();
+      } else if (action === "excel") {
+        exportToExcelInternal();
+      }
+    }
+
+    function generateQuote() {
+      if (!validateBasicInfo()) return;
+      if (quoteForm && !quoteForm.reportValidity()) return;
+      calculateTotals(cloudPlanSelect.value);
+      syncManualAmountInputs();
+
+      const currentContractTotal = getAmountFromInput(contractTotalInput, lastCalculation.contractTotal);
+
+      if (!currentContractTotal) {
+        alert("이용 개월 수를 올바르게 입력해 주세요.");
+        usageMonthsInput?.focus();
+        return;
+      }
+
+      showConsentModal("generate");
+    }
+
+    function generateQuoteInternal() {
+      const plan = planData[lastCalculation.planKey];
+      const companyName = companyNameInput?.value?.trim() || "-";
+      const usageMonths = lastCalculation.usageMonths || 0;
+      const monthlyFee = getAmountFromInput(monthlyFeeInput, lastCalculation.monthlyFee || 0);
+      const contractTotal = getAmountFromInput(contractTotalInput, lastCalculation.contractTotal || 0);
+      const depositTotal = getAmountFromInput(depositInput, lastCalculation.depositTotal || 0);
+      const serviceDetails = getSelectedServiceDetails();
+      const securitySelected = lastCalculation.securitySelected;
+
+      lastCalculation.monthlyFee = monthlyFee;
+      lastCalculation.contractTotal = contractTotal;
+      lastCalculation.depositTotal = depositTotal;
+
+      // 견적 정보 채우기
+      const quoteNameEl = document.getElementById("previewQuoteName");
+      const quoteDateEl = document.getElementById("previewQuoteDate");
+      const contractTotalEl = document.getElementById("previewContractTotal");
+      const depositEl = document.getElementById("previewDeposit");
+      
+      if (quoteNameEl) quoteNameEl.textContent = plan ? `맑은이러닝 / [${plan.name}]` : "-";
+      if (quoteDateEl) quoteDateEl.textContent = new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
+      if (contractTotalEl) contractTotalEl.textContent = contractTotal ? `${formatCurrency(contractTotal)} (VAT 별도)` : "-";
+      if (depositEl) depositEl.textContent = depositTotal ? `${formatCurrency(depositTotal)} (VAT 별도)` : "-";
+
+      // 고객 정보 채우기
+      previewCompany.textContent = companyName;
+      previewContact.textContent = contactInfo.name || "-";
+      previewEmail.textContent = contactInfo.email || "-";
+      previewPhone.textContent = contactInfo.phone || "-";
+
+      // 기본 항목 테이블 생성
+      const basicItemsTbody = document.getElementById("previewBasicItems");
+      if (basicItemsTbody) {
+        basicItemsTbody.innerHTML = "";
+        
+        // LMS 서비스
+        if (plan && !plan.customInquiry) {
+          const lmsRow = document.createElement("tr");
+          lmsRow.innerHTML = `
+            <td rowspan="2">LMS 서비스</td>
+            <td>S/W: ${plan.name} 클라우드 학습관리시스템</td>
+            <td>${usageMonths}</td>
+            <td>월</td>
+            <td>${formatCurrency(plan.price)}</td>
+            <td>${formatCurrency(plan.price * usageMonths)}</td>
+            <td>솔루션 기본 포함 서비스</td>
+          `;
+          basicItemsTbody.appendChild(lmsRow);
+
+          const hwRow = document.createElement("tr");
+          hwRow.innerHTML = `
+            <td>H/W: 클라우드 서버 제공 (저장공간: ${plan.storage}, 전송량: ${plan.bandwidth})</td>
+            <td>${usageMonths}</td>
+            <td>월</td>
+            <td>포함</td>
+            <td>포함</td>
+            <td>서버HW운영 및 기본하자보수</td>
+          `;
+          basicItemsTbody.appendChild(hwRow);
+        }
+
+        // 동영상 플레이어 보안 적용
+        if (securitySelected) {
+          const securityRow = document.createElement("tr");
+          securityRow.innerHTML = `
+            <td>동영상 서비스</td>
+            <td>보안 플레이어 (동영상 녹화 차단, DRM 적용)</td>
+            <td>${usageMonths}</td>
+            <td>월</td>
+            <td>${formatCurrency(SECURE_VIDEO_MONTHLY)}</td>
+            <td>${formatCurrency(SECURE_VIDEO_MONTHLY * usageMonths)}</td>
+            <td>기기대수 제한, 모바일 다운로드(선택기능)</td>
+          `;
+          basicItemsTbody.appendChild(securityRow);
+        }
+
+        // 세팅비
+        const setupRow = document.createElement("tr");
+        setupRow.innerHTML = `
+          <td>세팅비</td>
+          <td>서버 및 기본 솔루션 세팅, 단일 도메인 - SSL 보안 처리</td>
+          <td>1</td>
+          <td>회</td>
+          <td>${formatCurrency(SETUP_FEE)}</td>
+          <td>${formatCurrency(SETUP_FEE)}</td>
+          <td>1회성 비용</td>
+        `;
+        basicItemsTbody.appendChild(setupRow);
+
+        // 부가 서비스 추가 (세팅비 아래)
+        if (serviceDetails.length > 0) {
+          // 세팅비와 부가서비스 사이 구분선 추가
+          const separatorRow = document.createElement("tr");
+          separatorRow.className = "service-separator";
+          separatorRow.innerHTML = `<td colspan="7" style="border-top: 2px solid #e5e7eb; padding: 8px 0;"></td>`;
+          basicItemsTbody.appendChild(separatorRow);
+
+          serviceDetails.forEach(service => {
+            const row = document.createElement("tr");
+            const isMonthly = service.title.includes("보안") || service.title.includes("플레이어");
+            
+            // 가격이 0인 경우 (SMS, 본인인증 등) "-"로 표시
+            const hasPrice = service.price > 0;
+            const unitPrice = hasPrice ? formatCurrency(service.price) : "-";
+            const totalPrice = hasPrice 
+              ? (isMonthly ? formatCurrency(service.price * usageMonths) : formatCurrency(service.price))
+              : "-";
+            
+            // 비고 정보 구성
+            let noteText = "";
+            if (!hasPrice && service.note) {
+              // 가격이 없고 비고가 있는 경우 (고객사 직접 계약 등)
+              noteText = service.note;
+            } else if (isMonthly) {
+              noteText = "월 단위 비용";
+            } else if (hasPrice) {
+              noteText = "1회성 비용";
+            }
+            
+            row.innerHTML = `
+              <td>부가서비스</td>
+              <td>${service.title}</td>
+              <td>${isMonthly ? usageMonths : 1}</td>
+              <td>${isMonthly ? "월" : "회"}</td>
+              <td>${unitPrice}</td>
+              <td>${totalPrice}</td>
+              <td>${noteText}</td>
+            `;
+            basicItemsTbody.appendChild(row);
+          });
+        }
+      }
+
+      // 합계 행 업데이트
+      const totalAmountEl = document.getElementById("previewTotalAmount");
+      const monthlyAmountEl = document.getElementById("previewMonthlyAmount");
+      const depositAmountEl = document.getElementById("previewDepositAmount");
+      
+      if (totalAmountEl) totalAmountEl.textContent = contractTotal ? formatCurrency(contractTotal) : "-";
+      if (monthlyAmountEl) monthlyAmountEl.textContent = monthlyFee ? formatCurrency(monthlyFee) : "-";
+      if (depositAmountEl) depositAmountEl.textContent = depositTotal ? formatCurrency(depositTotal) : "-";
+
+      quotePreview.hidden = false;
+      printButton.disabled = false;
+    }
+
+    function openPrintWindow() {
+      if (!quotePreview || quotePreview.hidden) {
+        alert("먼저 임시 견적을 생성해 주세요.");
+        return;
+      }
+      showConsentModal("print");
+    }
+
+    function openPrintWindowInternal() {
+      const printWindow = window.open("", "_blank", "width=800,height=600");
+      if (!printWindow) return;
+      const quoteHtml = quotePreview.innerHTML.replace(
+        /(<img[^>]*class="quote-stamp"[^>]*src=")([^"]+)("[^>]*>)/,
+        (_, prefix, src, suffix) => `${prefix}${new URL(src, window.location.href).href}${suffix}`
+      );
+      const styles = `
+        <style>
+          @media print {
+            @page { 
+              margin: 10mm;
+              size: A4;
+            }
+            body { 
+              margin: 0;
+              padding: 0;
+            }
+          }
+          * {
+            box-sizing: border-box;
+          }
+          body { 
+            font-family: "Noto Sans KR", "Segoe UI", sans-serif; 
+            margin: 0;
+            padding: 8px;
+            color: #1a1a1a;
+            font-size: 10px;
+            line-height: 1.3;
+          }
+          .quote-document {
+            max-width: 100%;
+            background: #ffffff;
+            padding: 0;
+          }
+          .quote-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+          }
+          .quote-company-info {
+            flex: 1;
+          }
+          .quote-company-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: #667eea;
+          }
+          .quote-company-details {
+            font-size: 8px;
+            color: #6b7280;
+            line-height: 1.4;
+          }
+          .quote-company-details p {
+            margin: 2px 0;
+          }
+          .quote-title h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            color: #1a1a1a;
+          }
+          .quote-stamp {
+            display: block;
+            width: 96px;
+            height: auto;
+            margin: 6px 0 0 auto;
+            opacity: 0.95;
+          }
+          .quote-info-section {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e8e8e8;
+          }
+          .quote-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+          }
+          .quote-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .quote-info-label {
+            font-size: 8px;
+            color: #6b7280;
+            font-weight: 600;
+          }
+          .quote-info-value {
+            font-size: 10px;
+            font-weight: 700;
+            color: #1a1a1a;
+          }
+          .quote-customer-section {
+            margin-bottom: 10px;
+          }
+          .quote-customer-section h3,
+          .quote-items-section h3,
+          .quote-additional-section h3,
+          .quote-terms-section h3 {
+            font-size: 11px;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+            color: #1a1a1a;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #667eea;
+          }
+          .quote-customer-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+          }
+          .quote-customer-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 6px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            border: 1px solid #e8e8e8;
+            font-size: 9px;
+          }
+          .quote-customer-item span {
+            font-weight: 600;
+            color: #6b7280;
+          }
+          .quote-customer-item strong {
+            font-weight: 600;
+            color: #1a1a1a;
+          }
+          .quote-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 6px 0;
+            font-size: 8px;
+          }
+          .quote-table th,
+          .quote-table td {
+            padding: 4px 6px;
+            border: 1px solid #ddd;
+            text-align: left;
+            line-height: 1.2;
+          }
+          .quote-table thead {
+            background: #667eea;
+            color: #fff;
+          }
+          .quote-table thead th {
+            font-size: 8px;
+            font-weight: 700;
+            padding: 5px 6px;
+          }
+          .quote-table tbody td {
+            font-size: 8px;
+          }
+          .quote-table tfoot {
+            background: #f8f9fa;
+            font-weight: 700;
+          }
+          .quote-summary-row td {
+            padding: 5px 6px;
+            border-top: 2px solid #667eea;
+            font-size: 9px;
+          }
+          .quote-summary-label {
+            text-align: right;
+            color: #1a1a1a;
+          }
+          .quote-summary-value {
+            text-align: right;
+            color: #667eea;
+            font-size: 10px;
+          }
+          .quote-additional-section {
+            margin-bottom: 10px;
+          }
+          .quote-terms-section {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #e8e8e8;
+          }
+          .quote-terms-section h3 {
+            font-size: 11px;
+            margin-bottom: 6px;
+          }
+          .quote-terms-list {
+            margin: 0;
+            padding: 0;
+          }
+          .quote-term-item {
+            margin-bottom: 4px;
+            padding: 4px 6px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            border-left: 3px solid #667eea;
+            display: flex;
+            gap: 6px;
+            font-size: 8px;
+            line-height: 1.3;
+          }
+          .quote-term-checkbox {
+            font-size: 10px;
+            color: #667eea;
+            font-weight: 700;
+            flex-shrink: 0;
+          }
+          .quote-term-text {
+            font-size: 8px;
+            color: #374151;
+            line-height: 1.3;
+          }
+          .quote-term-text strong {
+            color: #1a1a1a;
+            font-weight: 700;
+          }
+        </style>
+      `;
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="ko">
+          <head>
+            <meta charset="UTF-8">
+            <title>임시 견적서</title>
+            ${styles}
+          </head>
+          <body>
+            ${quoteHtml}
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    function exportToExcel() {
+      if (!quotePreview || quotePreview.hidden) {
+        alert("먼저 임시 견적을 생성해 주세요.");
+        return;
+      }
+      showConsentModal("excel");
+    }
+
+    function exportToExcelInternal() {
+      // 실제 데이터 가져오기
+      const plan = planData[lastCalculation.planKey];
+      const planName = plan?.name || "-";
+      const monthlyFee = getAmountFromInput(monthlyFeeInput, lastCalculation.monthlyFee || 0);
+      const usageMonths = lastCalculation.usageMonths || 0;
+      const contractTotal = getAmountFromInput(contractTotalInput, lastCalculation.contractTotal || 0);
+      const depositTotal = getAmountFromInput(depositInput, lastCalculation.depositTotal || 0);
+      const serviceDetails = getSelectedServiceDetails();
+      const servicesText = serviceDetails.length > 0 
+        ? serviceDetails.map(s => `${s.title} (${formatCurrency(s.price)})`).join(", ")
+        : "없음";
+      
+      const rows = [
+        ["업체명", previewCompany?.textContent || "-"],
+        ["담당자", previewContact?.textContent || "-"],
+        ["이메일", previewEmail?.textContent || "-"],
+        ["연락처", previewPhone?.textContent || "-"],
+        ["상품 구분", planName],
+        ["월 이용료", formatCurrency(monthlyFee) + " (VAT 별도)"],
+        ["이용 기간", `${usageMonths}개월`],
+        ["부가서비스", servicesText],
+        ["년 계약총액", formatCurrency(contractTotal) + " (VAT 별도)"],
+        ["계약금", formatCurrency(depositTotal) + " (VAT 별도)"]
+      ];
+
+      const tableHtml = `
+        <table border="1">
+          ${rows.map(([label, value]) => `<tr><th>${label}</th><td>${value}</td></tr>`).join("")}
+        </table>
+      `;
+
+      const blob = new Blob(["\uFEFF" + tableHtml], { type: "application/vnd.ms-excel" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `estimate-${Date.now()}.xls`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    // 이메일 전송 함수 (현재 사용하지 않음)
+    async function sendEmail(action) {
+      if (!quotePreview || quotePreview.hidden) return;
+      
+      // 실제 데이터 가져오기 (null 체크 포함)
+      const companyName = previewCompany?.textContent || "-";
+      const contactName = previewContact?.textContent || "-";
+      const contactEmail = previewEmail?.textContent || "-";
+      const contactPhone = previewPhone?.textContent || "-";
+      
+      // lastCalculation과 planData에서 데이터 가져오기
+      const plan = planData[lastCalculation.planKey];
+      const planName = plan?.name || "-";
+      const monthlyFee = getAmountFromInput(monthlyFeeInput, lastCalculation.monthlyFee || 0);
+      const usageMonths = lastCalculation.usageMonths || 0;
+      const contractTotal = getAmountFromInput(contractTotalInput, lastCalculation.contractTotal || 0);
+      const depositTotal = getAmountFromInput(depositInput, lastCalculation.depositTotal || 0);
+      
+      // 부가서비스 정보 가져오기
+      const serviceDetails = getSelectedServiceDetails();
+      const servicesText = serviceDetails.length > 0 
+        ? serviceDetails.map(s => `${s.title} (${formatCurrency(s.price)})`).join(", ")
+        : "없음";
+      
+      // DOM 요소에서 가져오기 (fallback)
+      const previewDepositEl = document.getElementById("previewDeposit");
+      const depositText = previewDepositEl?.textContent || formatCurrency(depositTotal) + " (VAT 별도)";
+      
+      const emailBody = `
+견적서 요청 정보
+
+업체명: ${companyName}
+담당자: ${contactName}
+이메일: ${contactEmail}
+연락처: ${contactPhone}
+상품 구분: ${planName}
+월 이용료: ${formatCurrency(monthlyFee)} (VAT 별도)
+이용 기간: ${usageMonths}개월
+부가서비스: ${servicesText}
+년 계약총액: ${formatCurrency(contractTotal)} (VAT 별도)
+계약금: ${formatCurrency(depositTotal)} (VAT 별도)
+
+작업: ${action}
+요청 시간: ${new Date().toLocaleString("ko-KR")}
+      `.trim();
+
+      const subject = `[견적서 요청] ${companyName} - ${action}`;
+      
+      // Cloudflare Workers를 통한 이메일 자동 전송
+      // Pages Functions를 사용하는 경우 /api/send-email 경로로 설정
+      const API_ENDPOINT = "https://jhyang.pages.dev/api/send-email";
+      
+      try {
+        const emailData = {
+          to: "consulting@malgnsoft.com",
+          subject: subject,
+          body: emailBody,
+          company_name: companyName,
+          contact_name: contactName,
+          contact_email: contactEmail,
+          contact_phone: contactPhone,
+          plan: planName,
+          monthly_fee: formatCurrency(monthlyFee),
+          usage_months: `${usageMonths}개월`,
+          services: servicesText,
+          total: formatCurrency(contractTotal),
+          deposit: formatCurrency(depositTotal),
+          action: action
+        };
+
+        console.log("이메일 전송 시도:", API_ENDPOINT);
+        
+        const response = await fetch(API_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(emailData)
+        });
+
+        const responseData = await response.json();
+        console.log("서버 응답:", responseData);
+
+        if (response.ok) {
+          alert("이메일이 성공적으로 전송되었습니다.");
+        } else {
+          const errorMessage = responseData.error || responseData.message || "서버 응답 오류";
+          console.error("이메일 전송 실패:", errorMessage);
+          alert(`이메일 전송에 실패했습니다.\n\n오류: ${errorMessage}\n\n브라우저 콘솔에서 자세한 정보를 확인하세요.`);
+          // mailto 링크로 대체
+          const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+          window.location.href = mailtoLink;
+        }
+      } catch (error) {
+        console.error("이메일 전송 오류:", error);
+        alert(`이메일 전송 중 오류가 발생했습니다.\n\n오류: ${error.message}\n\n브라우저 콘솔에서 자세한 정보를 확인하세요.`);
+        // mailto 링크로 대체
+        const mailtoLink = `mailto:consulting@malgnsoft.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+        window.location.href = mailtoLink;
+      }
+    }
+
+    if (generateButton) {
+      generateButton.addEventListener("click", generateQuote);
+    }
+
+    if (printButton) {
+      printButton.addEventListener("click", openPrintWindow);
+    }
+
+
+    renderPlan(cloudPlanSelect.value);
+  </script>
+</body>
+</html>
+
+
