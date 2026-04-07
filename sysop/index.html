@@ -35,7 +35,7 @@
         </div>
         <div>
           <label for="contractTotal">년 계약총액</label>
-          <input id="contractTotal" type="text" placeholder="자동 계산 (수정 가능)">
+          <input id="contractTotal" type="text" placeholder="(월 이용료 × 이용 개월 수) + 계약금" readonly>
         </div>
         <div>
           <label for="depositAmount">계약금 (세팅비 + 부가서비스)</label>
@@ -731,21 +731,30 @@
 
     function syncManualAmountInputs() {
       const monthly = parseCurrencyInput(monthlyFeeInput?.value);
-      const contract = parseCurrencyInput(contractTotalInput?.value);
       const deposit = parseCurrencyInput(depositInput?.value);
+      const usageMonths = getUsageMonths();
 
       if (monthly > 0) {
         lastCalculation.monthlyFee = monthly;
         if (monthlyFeeText) monthlyFeeText.textContent = `${formatCurrency(monthly)} / 월`;
       }
-      if (contract > 0) {
-        lastCalculation.contractTotal = contract;
-        if (contractTotalText) {
-          contractTotalText.textContent = `${formatCurrency(contract)} (총 ${lastCalculation.usageMonths || getUsageMonths()}개월)`;
-        }
-      }
       if (deposit > 0) {
         lastCalculation.depositTotal = deposit;
+      }
+
+      const monthlyToUse = monthly > 0 ? monthly : (lastCalculation.monthlyFee || 0);
+      const depositToUse = deposit > 0 ? deposit : (lastCalculation.depositTotal || 0);
+      const contract = usageMonths > 0 ? (monthlyToUse * usageMonths) + depositToUse : 0;
+      lastCalculation.contractTotal = contract;
+
+      if (contractTotalInput) {
+        contractTotalInput.value = contract ? formatCurrency(contract) : "₩0";
+        contractTotalInput.setAttribute("data-value", String(contract || 0));
+      }
+      if (contractTotalText) {
+        contractTotalText.textContent = contract
+          ? `${formatCurrency(contract)} (총 ${usageMonths}개월)`
+          : "₩0";
       }
     }
 
@@ -930,6 +939,7 @@
       const serviceTotal = serviceDetails.reduce((sum, item) => sum + item.price, 0);
       const usageMonths = getUsageMonths();
       const securityFee = securePlayerCheckbox && securePlayerCheckbox.checked ? SECURE_VIDEO_MONTHLY : 0;
+      const depositTotal = SETUP_FEE + serviceTotal;
 
       // 별도문의 상품 처리
       if (plan.customInquiry) {
@@ -958,7 +968,7 @@
         if (depositInput) {
           const formatted = depositTotal > 0 ? formatCurrency(depositTotal) : "별도 문의";
           depositInput.value = formatted;
-          depositInput.setAttribute("data-value", depositTotal || 0);
+          depositInput.setAttribute("data-value", String(depositTotal || 0));
         }
         // 별도문의 상품은 초과금 정보 숨김
         const overageStorageContainer = document.getElementById("overageStorageContainer");
@@ -984,9 +994,8 @@
 
       const monthlyTotal = plan.price + securityFee;
       const contractTotal = usageMonths > 0
-        ? (monthlyTotal * usageMonths) + SETUP_FEE + serviceTotal
+        ? (monthlyTotal * usageMonths) + depositTotal
         : 0;
-      const depositTotal = SETUP_FEE + serviceTotal;
 
       if (monthlyFeeInput) {
         const formatted = monthlyTotal ? formatCurrency(monthlyTotal) : "₩0";
@@ -1097,7 +1106,7 @@
       usageMonthsInput.addEventListener("input", () => calculateTotals());
     }
 
-    [monthlyFeeInput, contractTotalInput, depositInput].forEach((inputElement) => {
+    [monthlyFeeInput, depositInput].forEach((inputElement) => {
       inputElement?.addEventListener("input", syncManualAmountInputs);
     });
 
@@ -1133,7 +1142,8 @@
       calculateTotals(cloudPlanSelect.value);
       syncManualAmountInputs();
 
-      const currentContractTotal = getAmountFromInput(contractTotalInput, lastCalculation.contractTotal);
+      const currentContractTotal = (lastCalculation.monthlyFee * (lastCalculation.usageMonths || getUsageMonths())) + lastCalculation.depositTotal;
+      lastCalculation.contractTotal = currentContractTotal;
 
       if (!currentContractTotal) {
         alert("이용 개월 수를 올바르게 입력해 주세요.");
@@ -1149,8 +1159,8 @@
       const companyName = companyNameInput?.value?.trim() || "-";
       const usageMonths = lastCalculation.usageMonths || 0;
       const monthlyFee = getAmountFromInput(monthlyFeeInput, lastCalculation.monthlyFee || 0);
-      const contractTotal = getAmountFromInput(contractTotalInput, lastCalculation.contractTotal || 0);
       const depositTotal = getAmountFromInput(depositInput, lastCalculation.depositTotal || 0);
+      const contractTotal = usageMonths > 0 ? (monthlyFee * usageMonths) + depositTotal : 0;
       const serviceDetails = getSelectedServiceDetails();
       const securitySelected = lastCalculation.securitySelected;
 
@@ -1554,8 +1564,8 @@
       const planName = plan?.name || "-";
       const monthlyFee = getAmountFromInput(monthlyFeeInput, lastCalculation.monthlyFee || 0);
       const usageMonths = lastCalculation.usageMonths || 0;
-      const contractTotal = getAmountFromInput(contractTotalInput, lastCalculation.contractTotal || 0);
       const depositTotal = getAmountFromInput(depositInput, lastCalculation.depositTotal || 0);
+      const contractTotal = usageMonths > 0 ? (monthlyFee * usageMonths) + depositTotal : 0;
       const serviceDetails = getSelectedServiceDetails();
       const servicesText = serviceDetails.length > 0 
         ? serviceDetails.map(s => `${s.title} (${formatCurrency(s.price)})`).join(", ")
@@ -1606,8 +1616,8 @@
       const planName = plan?.name || "-";
       const monthlyFee = getAmountFromInput(monthlyFeeInput, lastCalculation.monthlyFee || 0);
       const usageMonths = lastCalculation.usageMonths || 0;
-      const contractTotal = getAmountFromInput(contractTotalInput, lastCalculation.contractTotal || 0);
       const depositTotal = getAmountFromInput(depositInput, lastCalculation.depositTotal || 0);
+      const contractTotal = usageMonths > 0 ? (monthlyFee * usageMonths) + depositTotal : 0;
       
       // 부가서비스 정보 가져오기
       const serviceDetails = getSelectedServiceDetails();
