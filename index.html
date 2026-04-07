@@ -256,6 +256,7 @@
         </div>
         <div class="quote-title">
           <h2>견적서</h2>
+          <img class="quote-stamp" src="images/malgnsoft-stamp.jpg" alt="맑은소프트 서명 도장">
         </div>
       </div>
 
@@ -1257,6 +1258,10 @@
     function openPrintWindowInternal() {
       const printWindow = window.open("", "_blank", "width=800,height=600");
       if (!printWindow) return;
+      const quoteHtml = quotePreview.innerHTML.replace(
+        /(<img[^>]*class="quote-stamp"[^>]*src=")([^"]+)("[^>]*>)/,
+        (_, prefix, src, suffix) => `${prefix}${new URL(src, window.location.href).href}${suffix}`
+      );
       const styles = `
         <style>
           @media print {
@@ -1315,6 +1320,13 @@
             font-weight: 700;
             margin: 0;
             color: #1a1a1a;
+          }
+          .quote-stamp {
+            display: block;
+            width: 96px;
+            height: auto;
+            margin: 6px 0 0 auto;
+            opacity: 0.95;
           }
           .quote-info-section {
             margin-bottom: 10px;
@@ -1475,7 +1487,7 @@
             ${styles}
           </head>
           <body>
-            ${quotePreview.innerHTML}
+            ${quoteHtml}
           </body>
         </html>
       `);

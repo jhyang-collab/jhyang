@@ -539,6 +539,14 @@ input[type="text"][readonly][data-value] {
   color: #1a1a1a;
 }
 
+.quote-stamp {
+  display: block;
+  width: 110px;
+  height: auto;
+  margin: 10px 0 0 auto;
+  opacity: 0.95;
+}
+
 /* 견적 정보 섹션 */
 .quote-info-section {
   margin-bottom: 32px;
@@ -948,6 +956,11 @@ button:disabled {
     border-radius: 0 !important;
     box-shadow: none !important;
     page-break-inside: avoid;
+  }
+
+  .quote-stamp {
+    width: 92px;
+    margin-top: 6px;
   }
 }
 
