@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>신규 견적서 생성</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .page-wrap {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px 40px;
+    }
+
+    .intro-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .inline-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .checkbox-board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .checkbox-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .readonly {
+      background: #f3f4f6 !important;
+      color: #111827;
+      font-weight: 600;
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 12px;
+      border: 2px solid #c7d2fe;
+      background: #eef2ff;
+    }
+
+    .result-box h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .pill {
+      display: inline-block;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e0e7ff;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2,
+      .grid-3,
+      .checkbox-board {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <div class="intro-card">
+      <h1>신규 견적서 생성</h1>
+      <p class="description">입력값을 기반으로 추천 상품을 자동 선택하고 견적 초안을 생성합니다.</p>
+      <p class="note">콘텐츠 1개는 1GB로 산정되며, 예상 수강인원은 월 선택 시 자동으로 12개월 환산됩니다.</p>
+    </div>
+
+    <form id="quoteForm" novalidate>
+      <fieldset>
+        <legend>기본 정보</legend>
+        <div class="grid-2">
+          <div>
+            <label for="companyName">1. 기업명 <span class="required-star">*</span></label>
+            <input id="companyName" type="text" required placeholder="예: 주식회사 예시">
+          </div>
+          <div>
+            <label for="managerName">2. 담당자명 <span class="required-star">*</span></label>
+            <input id="managerName" type="text" required placeholder="예: 홍길동">
+          </div>
+          <div>
+            <label for="contactValue">3. 연락처 (전화번호 또는 이메일) <span class="required-star">*</span></label>
+            <input id="contactValue" type="text" required placeholder="예: 010-0000-0000 또는 user@company.com">
+          </div>
+          <div>
+            <label for="contentType">4. 콘텐츠 형태</label>
+            <select id="contentType">
+              <option value="video">영상 콘텐츠 (mp4, mov 등)</option>
+              <option value="html5">HTML5 기반 웹 콘텐츠</option>
+            </select>
+          </div>
+          <div>
+            <label for="institutionType">5. 기관 형태</label>
+            <select id="institutionType">
+              <option value="company">일반기업</option>
+              <option value="sole">개인사업자</option>
+              <option value="public">공공기관</option>
+            </select>
+          </div>
+          <div>
+            <label for="serviceType">6. 운영 서비스 형태</label>
+            <select id="serviceType">
+              <option value="external">사외 교육</option>
+              <option value="internal">사내 교육</option>
+              <option value="refund">환급서비스</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>산정 정보</legend>
+        <div class="grid-3">
+          <div>
+            <label for="contentCount">7. 콘텐츠 수량</label>
+            <input id="contentCount" type="number" min="0" step="1" value="0">
+          </div>
+          <div>
+            <label for="contentCapacity">8. 콘텐츠 총 용량 (자동: 개수 x 1GB)</label>
+            <input id="contentCapacity" class="readonly" type="text" readonly value="0 GB">
+          </div>
+          <div>
+            <label for="securityApply">10. 보안 적용 여부</label>
+            <select id="securityApply">
+              <option value="no">미적용</option>
+              <option value="yes">적용</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-3" style="margin-top: 16px;">
+          <div>
+            <label for="expectedLearners">9. 예상 수강인원</label>
+            <input id="expectedLearners" type="number" min="0" step="1" value="0">
+          </div>
+          <div>
+            <label for="learnerUnit">수강인원 입력 단위</label>
+            <select id="learnerUnit">
+              <option value="month">월</option>
+              <option value="year">년</option>
+            </select>
+          </div>
+          <div>
+            <label for="normalizedLearners">환산 수강인원 (자동)</label>
+            <input id="normalizedLearners" class="readonly" type="text" readonly value="0 명/년 기준">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>11. 부가서비스 (체크박스)</legend>
+        <div class="checkbox-board">
+          <label class="checkbox-card"><input type="checkbox" value="certificate"> 수료증 제작</label>
+          <label class="checkbox-card"><input type="checkbox" value="sso"> SSO 연동</label>
+          <label class="checkbox-card"><input type="checkbox" value="api"> API 연동</label>
+          <label class="checkbox-card"><input type="checkbox" value="social"> 소셜 로그인</label>
+          <label class="checkbox-card"><input type="checkbox" value="video-conference"> 화상 서비스</label>
+          <label class="checkbox-card"><input type="checkbox" value="sms"> SMS/알림톡</label>
+          <label class="checkbox-card"><input type="checkbox" value="auth"> 본인인증/아이핀</label>
+          <label class="checkbox-card"><input type="checkbox" value="report"> 고급 리포트</label>
+          <label class="checkbox-card"><input type="checkbox" value="branding"> 브랜드 커스터마이징</label>
+        </div>
+      </fieldset>
+
+      <div class="submit-row">
+        <button type="button" id="recommendButton">추천 상품 자동 선택</button>
+      </div>
+
+      <section class="result-box" id="resultBox" hidden>
+        <h3>추천 결과</h3>
+        <p><strong>추천 상품:</strong> <span id="recommendedPlan">-</span></p>
+        <p><strong>추천 사유:</strong> <span id="recommendReason">-</span></p>
+        <div>
+          <span class="pill" id="pillStorage">총 용량: 0 GB</span>
+          <span class="pill" id="pillLearners">환산 수강인원: 0 명/년</span>
+          <span class="pill" id="pillSecurity">보안: 미적용</span>
+        </div>
+      </section>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("quoteForm");
+    const contentCountInput = document.getElementById("contentCount");
+    const contentCapacityInput = document.getElementById("contentCapacity");
+    const expectedLearnersInput = document.getElementById("expectedLearners");
+    const learnerUnitSelect = document.getElementById("learnerUnit");
+    const normalizedLearnersInput = document.getElementById("normalizedLearners");
+    const recommendButton = document.getElementById("recommendButton");
+
+    const companyNameInput = document.getElementById("companyName");
+    const managerNameInput = document.getElementById("managerName");
+    const contactValueInput = document.getElementById("contactValue");
+
+    const institutionTypeSelect = document.getElementById("institutionType");
+    const serviceTypeSelect = document.getElementById("serviceType");
+    const securityApplySelect = document.getElementById("securityApply");
+
+    const resultBox = document.getElementById("resultBox");
+    const recommendedPlanText = document.getElementById("recommendedPlan");
+    const recommendReasonText = document.getElementById("recommendReason");
+    const pillStorage = document.getElementById("pillStorage");
+    const pillLearners = document.getElementById("pillLearners");
+    const pillSecurity = document.getElementById("pillSecurity");
+
+    function toPositiveNumber(value) {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    }
+
+    function calculateCapacityGb() {
+      const contentCount = toPositiveNumber(contentCountInput.value);
+      return contentCount * 1;
+    }
+
+    function calculateNormalizedLearners() {
+      const learners = toPositiveNumber(expectedLearnersInput.value);
+      const unit = learnerUnitSelect.value;
+      return unit === "month" ? learners * 12 : learners;
+    }
+
+    function updateDerivedValues() {
+      const capacityGb = calculateCapacityGb();
+      const normalizedLearners = calculateNormalizedLearners();
+      contentCapacityInput.value = `${capacityGb} GB`;
+      normalizedLearnersInput.value = `${normalizedLearners} 명/년 기준`;
+    }
+
+    function isContactValid(value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const phoneRegex = /^[0-9+\-\s()]{8,}$/;
+      return emailRegex.test(value) || phoneRegex.test(value);
+    }
+
+    function recommendPlan({ institutionType, serviceType, capacityGb, normalizedLearners }) {
+      if (institutionType === "public") {
+        if (normalizedLearners <= 500 && capacityGb <= 300) {
+          return {
+            name: "공공 LMS 라이트",
+            reason: "공공기관 기준이며 수강인원과 용량이 라이트 구간입니다."
+          };
+        }
+        if (normalizedLearners <= 1000 && capacityGb <= 500) {
+          return {
+            name: "공공 LMS 스탠다드",
+            reason: "공공기관 기준 중간 규모 수강/용량 구간입니다."
+          };
+        }
+        return {
+          name: "공공 LMS 프로페셔널",
+          reason: "공공기관 기준 대규모 수강 또는 고용량 콘텐츠 구간입니다."
+        };
+      }
+
+      if (serviceType === "refund") {
+        if (normalizedLearners <= 1500 && capacityGb <= 1000) {
+          return {
+            name: "환급 LMS 스탠다드",
+            reason: "환급서비스 운영에 필요한 기본 규모 구간입니다."
+          };
+        }
+        return {
+          name: "환급 LMS 프로페셔널",
+          reason: "환급서비스 대규모 운영에 적합한 구간입니다."
+        };
+      }
+
+      if (normalizedLearners <= 1000 && capacityGb <= 200) {
+        return {
+          name: "T-스타터 / M-스타터",
+          reason: "일반 운영 기준 소규모 수강/용량 구간입니다."
+        };
+      }
+      if (normalizedLearners <= 3000 && capacityGb <= 600) {
+        return {
+          name: "T-스탠다드 / M-스탠다드",
+          reason: "일반 운영 기준 중간 규모 수강/용량 구간입니다."
+        };
+      }
+      return {
+        name: "T-프로페셔널 / M-프로페셔널",
+        reason: "일반 운영 기준 대규모 수강 또는 고용량 구간입니다."
+      };
+    }
+
+    function validateRequiredFields() {
+      if (!companyNameInput.value.trim()) {
+        alert("기업명은 필수 입력값입니다.");
+        companyNameInput.focus();
+        return false;
+      }
+      if (!managerNameInput.value.trim()) {
+        alert("담당자명은 필수 입력값입니다.");
+        managerNameInput.focus();
+        return false;
+      }
+      const contactValue = contactValueInput.value.trim();
+      if (!contactValue) {
+        alert("연락처는 필수 입력값입니다.");
+        contactValueInput.focus();
+        return false;
+      }
+      if (!isContactValid(contactValue)) {
+        alert("연락처는 전화번호 또는 이메일 형식이어야 합니다.");
+        contactValueInput.focus();
+        return false;
+      }
+      return true;
+    }
+
+    function handleRecommend() {
+      if (!validateRequiredFields()) {
+        return;
+      }
+
+      updateDerivedValues();
+
+      const capacityGb = calculateCapacityGb();
+      const normalizedLearners = calculateNormalizedLearners();
+      const institutionType = institutionTypeSelect.value;
+      const serviceType = serviceTypeSelect.value;
+      const securityApply = securityApplySelect.value;
+
+      const result = recommendPlan({
+        institutionType,
+        serviceType,
+        capacityGb,
+        normalizedLearners
+      });
+
+      recommendedPlanText.textContent = result.name;
+      recommendReasonText.textContent = result.reason;
+      pillStorage.textContent = `총 용량: ${capacityGb} GB`;
+      pillLearners.textContent = `환산 수강인원: ${normalizedLearners} 명/년`;
+      pillSecurity.textContent = `보안: ${securityApply === "yes" ? "적용" : "미적용"}`;
+      resultBox.hidden = false;
+    }
+
+    contentCountInput.addEventListener("input", updateDerivedValues);
+    expectedLearnersInput.addEventListener("input", updateDerivedValues);
+    learnerUnitSelect.addEventListener("change", updateDerivedValues);
+    recommendButton.addEventListener("click", handleRecommend);
+
+    updateDerivedValues();
+  </script>
+</body>
+</html>
